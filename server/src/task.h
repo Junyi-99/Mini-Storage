@@ -1,9 +1,3 @@
 #include "BlockQueue.h"
 
-void* do_task(void *pBQ);
-
-
-
-
-
-
+void *do_task(void *pBQ);
