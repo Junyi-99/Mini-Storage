@@ -20,7 +20,7 @@ inline bool CHECK_RET(int32_t res, const char *errMsg) {
  * @description: 对socket函数进行封装 : ipv4 tcp协议
  *               一个fd对应一个类实例，服务端和客户端通用
  * @说明: const 类型参数为传入参数
- *        *     指针类型参数为传入参数
+ *        *     指针类型参数为传出参数
  *        &     非const引用类型为传入传出参数
  */
 
