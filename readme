@@ -1,0 +1,24 @@
+client 编译
+  cd client
+  ./build.sh
+
+client 运行
+  cd client
+  ./bld/upload <file_path>
+
+client 目录
+.
+├── build.sh
+├── CMakeLists.txt
+├── etc
+│   └── config.h
+├── include
+│   ├── big_file.h
+│   └── small_file.h
+├── lib
+│   ├── big_file_upload.c
+│   ├── hash.c
+│   └── small_file_upload.c
+└── src
+    ├── download.c
+    └── upload.c

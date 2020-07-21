@@ -9,4 +9,6 @@
 
 #define SMALL_FILE_SIZE_MAX 10 * 1024 * 1024
 
+#define SERVER_DISK_COUNT 24
+
 #endif

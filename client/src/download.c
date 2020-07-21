@@ -1,7 +1,7 @@
 
-#include "../../etc/config.h"
-#include "../../include/big_file.h"
-#include "../../include/small_file.h"
+#include "../etc/config.h"
+#include "../include/big_file.h"
+#include "../include/small_file.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
