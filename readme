@@ -6,19 +6,28 @@ client 运行
   cd client
   ./bld/upload <file_path>
 
+生成小文件及filelist
+  cd client
+  ./small_file_genor.sh
+
+小文件上传（20个并发）(使用bin中server)
+  ./upload_20_small_file.sh
+
 client 目录
 .
 ├── build.sh
 ├── CMakeLists.txt
 ├── etc
 │   └── config.h
+├── filelist
 ├── include
 │   ├── big_file.h
 │   └── small_file.h
 ├── lib
-│   ├── big_file_upload.c
-│   ├── hash.c
-│   └── small_file_upload.c
-└── src
-    ├── download.c
-    └── upload.c
+│   ├── big_file_upload.cc
+│   └── small_file_upload.cc
+├── src
+│   ├── download.c
+│   └── upload.cc
+├── small_file_genor.sh
+└── upload_20_small_file.sh

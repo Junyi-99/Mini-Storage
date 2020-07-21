@@ -2,3 +2,5 @@
 .ccls-cache/
 */bld/*
 .vscode
+test.file*
+filelist
