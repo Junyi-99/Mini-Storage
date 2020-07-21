@@ -2,6 +2,7 @@
 #define __SMALL_FILE_H__
 
 #include <stdlib.h>
+
 /*
   SDBMHash function to calculate send to which disk(server)
   @param str  input filepath
