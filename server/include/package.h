@@ -16,10 +16,14 @@ struct Package {
     uint32_t disk_no;
 };
 
+enum MSG_TYPE {
+    SMALL_UPLOAD = 0, SMALL_DOWNLOAD, BIG_UPLOAD, BIG_DOWNLOAD
+};
+
 Package *
 pack_header(uint64_t package_len, uint32_t msg_type, char *filename, uint64_t block_len, uint32_t disk_no);
 
 // First step，通过 package len 可以算出块的大小
-Package *unpack_header(unsigned char *buffer, uint64_t length);
+Package *unpack_header(unsigned char *buffer);
 
 #endif //FUCK_STORAGE_SERVER_PACKAGE_H

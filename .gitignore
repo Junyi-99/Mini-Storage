@@ -10,3 +10,4 @@ test.file*
 filelist
 
 cmake-build-debug-remote-host/
+build/

@@ -1,3 +1,6 @@
+#include <sys/sendfile.h>
+#include <sys/types.h>
+#include <sys/mman.h>
 #include "../include/tcp.h"
 
 int tcp_init(int port, int max_connection) {
@@ -13,6 +16,12 @@ int tcp_init(int port, int max_connection) {
     // 创建 socket
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket error\n");
+        return -1;
+    }
+
+    int reuse = 1;
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0) {
+        perror("setsockopt error\n");
         return -1;
     }
 
@@ -58,27 +67,8 @@ int tcp_accept(int epoll_fd, int fd) {
 
 int tcp_receive(int client_fd) {
     int ret;
-    unsigned char buf[2048] = {0};
-
-    while ((ret = recv(client_fd, buf, sizeof(buf), 0)) > 0) {
-        // 正常接收到服务器数据
-        printf("receive data from %d, length %d\n", client_fd, ret);
-
-        // 解包
-        Package *p = unpack_header(buf, ret);
-        printf("Package Length: %lu\n", p->package_len);
-        printf("  Message Type: %d\n", p->msg_type);
-        printf("  Block Length: %lu\n", p->block_len);
-        printf("       Disk No: %d\n", p->disk_no);
-        printf("     File Name: %s\n", p->filename);
-
-
-
-        //tcp_send(client_fd, buf, ret); // echo back
-        close(client_fd);
-        break;
-    }
-
+    unsigned char buf[sizeof(Package)] = {0};
+    ret = recv(client_fd, buf, sizeof(buf), 0); // 取一个 header 这么大的数据
 
     if (ret < 0) {
         // 连接被重置
@@ -93,7 +83,69 @@ int tcp_receive(int client_fd) {
         // 客户端关闭连接
         close(client_fd);
         printf("client %d connection closed\n", client_fd);
+        return -1;
     }
+
+    Package *p = unpack_header(buf);
+    printf("Package Length: %lu\n", p->package_len);
+    printf("Message Type:   %d\n", p->msg_type);
+    printf("Block Length:   %lu\n", p->block_len);
+    printf("Disk No:        %d\n", p->disk_no);
+    printf("File Name:      %s\n", p->filename);
+
+    switch ((MSG_TYPE) p->msg_type) {
+        case SMALL_UPLOAD: {
+            // 客户端上传小文件到服务器
+            unsigned char buf2[40960] = {0};
+            uint64_t received = 0;
+
+            // 打开 文件 准备边接收边写入
+            creat(p->filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+            truncate(p->filename, p->block_len);
+
+            int wfd = open(p->filename, O_RDWR,
+                           S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+            if (wfd == -1) {
+                perror("Cannot open output file\n");
+                return -1;
+            }
+
+            printf("Receiving data ... \n");
+            double last_percent = 0.0f;
+            double curr_percent = 0.0f;
+            while (received < p->block_len) {
+                ret = recv(client_fd, buf2, sizeof(buf2), 0);
+
+                write(wfd, buf2, ret);
+
+                curr_percent = received * 100 / (double) p->block_len;
+                if (curr_percent - last_percent > 1)
+                    printf("Progress: %.2f%%\n", last_percent = curr_percent);
+
+                if (ret <= 0) {
+                    close(client_fd);
+                    break;
+                }
+                received += ret;
+            }
+
+            close(wfd);
+            printf("Transfer completed!\n");
+            break;
+        }
+        case SMALL_DOWNLOAD: {
+            break;
+        }
+        case BIG_UPLOAD: {
+            break;
+        }
+        case BIG_DOWNLOAD: {
+            break;
+        }
+    }
+    delete p;
+    close(client_fd);
+
     return 0;
 }
 

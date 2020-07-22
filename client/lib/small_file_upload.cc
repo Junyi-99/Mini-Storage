@@ -77,6 +77,7 @@ void do_small_file_upload(int fd, char *file_name, size_t file_size) {
     off_t *offset = new off_t;
     while (*offset < file_size) {
         send_size = sendfile(connfd, fd, offset, file_size);
+        printf("sent: %d\n", send_size);
         if (send_size < 0) {
             perror("Send error!");
             close(connfd);

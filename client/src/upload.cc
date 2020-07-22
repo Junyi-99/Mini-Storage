@@ -5,7 +5,17 @@
 #include <glob.h>
 
 int main(int argc, char *argv[]) {
+
+    printf("Server1: %s:%d\n", SERVER_IP_ADDR_1, SERVER_PORT);
+    printf("Server1: %s:%d\n", SERVER_IP_ADDR_2, SERVER_PORT);
+
     int fd = open(argv[1], O_RDONLY);
+
+    if (fd == -1) {
+        perror("open failed");
+        exit(1);
+    }
+
     struct stat file_state;
     fstat(fd, &file_state);
     size_t file_size = file_state.st_size;

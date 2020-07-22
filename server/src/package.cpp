@@ -18,7 +18,7 @@ pack_header(uint64_t package_len, uint32_t msg_type, char *filename, uint64_t bl
 }
 
 // First step，通过packagelen可以算出块的大小
-Package *unpack_header(unsigned char *buffer, uint64_t length) {
+Package *unpack_header(unsigned char *buffer) {
     auto p = reinterpret_cast<Package *>(buffer);
     return pack_header(p->package_len, p->msg_type, p->filename, p->block_len, p->disk_no);
 }
