@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <stdint.h>
 #include <string>
+#include <sys/sendfile.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -84,25 +85,33 @@ public:
     return CHECK_RET(res, "connect error!");
   }
 
-  bool Send(const std::string &buf) {
-    int32_t res = send(_fd, buf.c_str(), buf.size(), 0);
+  bool Send(const void *buf, const size_t size) {
+    int res = send(_fd, buf, size, 0);
     return CHECK_RET(res, "send error!");
   }
 
-  bool Recv(std::string *buf) {
-    char tmp[1024 * 4] = {0};
-    int32_t len = recv(_fd, tmp, sizeof(tmp) - 1, 0);
-    if (len < 0) {
-      perror("recv error!");
-      return false;
-    }
-    if (len == 0) {
-      std::cout << "recv return 0!" << std::endl;
-      return false;
-    }
-    buf->assign(tmp, len);
-    return true;
+  bool SendFile(const uint32_t file_fd, off_t *offset, const size_t size) {
+    // int32_t res = send(_fd, buf.c_str(), buf.size(), 0);
+    ssize_t res = sendfile(_fd, file_fd, offset, size);
+    return CHECK_RET(res, "sendfile error!");
   }
+
+  /*
+   * bool Recv(std::string *buf) {
+   * char tmp[1024 * 4] = {0};
+   * int32_t len = recv(_fd, tmp, sizeof(tmp) - 1, 0);
+   * if (len < 0) {
+   * perror("recv error!");
+   * return false;
+   * }
+   * if (len == 0) {
+   * std::cout << "recv return 0!" << std::endl;
+   * return false;
+   * }
+   * buf->assign(tmp, len);
+   * return true;
+   * }
+   */
 
   void SetFd(const int fd) { _fd = fd; }
   uint32_t GetFd() const { return _fd; }
