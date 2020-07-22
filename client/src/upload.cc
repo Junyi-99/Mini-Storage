@@ -19,7 +19,8 @@ int main(int argc, char *argv[]) {
     struct stat file_state;
     fstat(fd, &file_state);
     size_t file_size = file_state.st_size;
-    if (file_size > SMALL_FILE_SIZE_MAX) {
+    //if (file_size > SMALL_FILE_SIZE_MAX) {
+    if (false) {
         printf("big file \n");
         do_big_file_upload(fd, argv[1], file_size);
     } else {

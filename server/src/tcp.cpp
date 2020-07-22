@@ -96,10 +96,10 @@ int tcp_receive(int client_fd) {
     switch ((MSG_TYPE) p->msg_type) {
         case SMALL_UPLOAD: {
             // 客户端上传小文件到服务器
-            unsigned char buf2[40960] = {0};
+            unsigned char buf2[81920] = {0};
             uint64_t received = 0;
 
-            // 打开 文件 准备边接收边写入
+            // 创建 文件 准备边接收边写入
             creat(p->filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
             truncate(p->filename, p->block_len);
 
@@ -110,27 +110,51 @@ int tcp_receive(int client_fd) {
                 return -1;
             }
 
+            unsigned char *mp = (unsigned char *) mmap(NULL, p->block_len, PROT_READ | PROT_WRITE, MAP_SHARED, wfd, 0);
+            if (mp == MAP_FAILED) {
+                close(wfd);
+                perror("Error mmapping the file");
+                exit(EXIT_FAILURE);
+            }
+
+            //sendfile(wfd, client_fd, NULL, p->block_len);
             printf("Receiving data ... \n");
+
             double last_percent = 0.0f;
             double curr_percent = 0.0f;
+
             while (received < p->block_len) {
                 ret = recv(client_fd, buf2, sizeof(buf2), 0);
-
-                write(wfd, buf2, ret);
-
-                curr_percent = received * 100 / (double) p->block_len;
-                if (curr_percent - last_percent > 1)
-                    printf("Progress: %.2f%%\n", last_percent = curr_percent);
-
                 if (ret <= 0) {
                     close(client_fd);
                     break;
                 }
+                
+                curr_percent = received * 100 / (double) p->block_len;
+                if (curr_percent - last_percent > 1)
+                    printf("Progress: %.2f%%\n", last_percent = curr_percent);
+
+                memcpy(mp, buf2, ret); // mmap 写法
+
                 received += ret;
+                printf("received: %d, total: %lu\n", ret, received);
             }
 
+            printf("Syncing the disk ... \n");
+            if (msync(mp, p->block_len, MS_SYNC) == -1) {
+                perror("Could not sync the file to disk");
+            }
+
+            // Don't forget to free the mmapped memory
+            if (munmap(mp, p->block_len) == -1) {
+                close(wfd);
+                perror("Error un-mmapping the file");
+                exit(EXIT_FAILURE);
+            }
+
+            //printf("Closing the socket ... \n");
             close(wfd);
-            printf("Transfer completed!\n");
+            printf("Transfer complete!\n");
             break;
         }
         case SMALL_DOWNLOAD: {

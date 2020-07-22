@@ -13,7 +13,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define SMALL_FILE_SIZE_MAX 1000 * 1024 * 1024
+#define SMALL_FILE_SIZE_MAX 10 * 1024 * 1024
 #define ACK_SIZE            8
 
 #define SERVER_DISK_COUNT   24
