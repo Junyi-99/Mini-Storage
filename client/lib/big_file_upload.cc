@@ -9,6 +9,7 @@
 using ThreadArg = std::tuple<const char *, uint32_t, off_t, uint32_t>;
 
 // TODO: 抽象my_hash, Package
+// TODO: encode
 struct Package {
   uint32_t package_len;
   MSG_TYPE msg_type; // upload or download, small or big file
@@ -70,12 +71,13 @@ void *thr_start(void *arg) {
   // send file block
   socket_fd.SendFile(fd, &offset, real_block_size);
 
+  // TODO: recv
   socket_fd.Close();
   return nullptr;
 }
 
 void do_big_file_upload(const uint32_t fd, const char *file_name,
-                        const size_t file_size) {
+                        const uint64_t file_size) {
   // last_block:
   const uint32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
   const uint32_t block_size = file_size / (BIG_FILE_UPLOAD_BLOCK_NUM);
