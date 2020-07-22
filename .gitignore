@@ -1,2 +1,5 @@
 *.o
 .ccls-cache/
+.idea/
+
+server/cmake-build-debug-remote-host/
