@@ -41,6 +41,7 @@ public:
 
   bool Close() {
     int32_t res = close(_fd);
+    _fd = -1;
     return CHECK_RET(res, "close error!");
   }
 
@@ -86,8 +87,8 @@ public:
   }
 
   bool Send(const void *buf, const size_t size) {
-    int res = send(_fd, buf, size, 0);
-    return CHECK_RET(res, "send error!");
+    ssize_t res = send(_fd, buf, size, 0);
+    return CHECK_RET(res, "send error!!");
   }
 
   bool SendFile(const uint32_t file_fd, off_t *offset, const size_t size) {
@@ -96,22 +97,16 @@ public:
     return CHECK_RET(res, "sendfile error!");
   }
 
-  /*
-   * bool Recv(std::string *buf) {
-   * char tmp[1024 * 4] = {0};
-   * int32_t len = recv(_fd, tmp, sizeof(tmp) - 1, 0);
-   * if (len < 0) {
-   * perror("recv error!");
-   * return false;
-   * }
-   * if (len == 0) {
-   * std::cout << "recv return 0!" << std::endl;
-   * return false;
-   * }
-   * buf->assign(tmp, len);
-   * return true;
-   * }
-   */
+  ssize_t Recv(void *buf, const size_t size) {
+    ssize_t len = recv(_fd, buf, size - 1, 0);
+    if (len < 0) {
+      perror("recv error!");
+    }
+    if (len == 0) {
+      std::cout << "recv return 0!" << std::endl;
+    }
+    return len;
+  }
 
   void SetFd(const int fd) { _fd = fd; }
   uint32_t GetFd() const { return _fd; }

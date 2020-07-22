@@ -6,3 +6,4 @@ test.file*
 test_big.file*
 filelist
 thread_pool.hpp
+fufu_server/
