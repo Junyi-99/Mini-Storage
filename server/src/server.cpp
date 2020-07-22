@@ -8,9 +8,9 @@
 
 #include <sys/epoll.h>
 
-#include "ThreadPool.h"
-#include "tcp.h"
-#include "worker.h"
+#include "../include/ThreadPool.h"
+#include "../include/tcp.h"
+#include "../include/worker.h"
 
 ThreadPool pool(MAX_THREADS);
 

@@ -22,8 +22,8 @@
 // #define SERVER_IP_ADDR_1  "9.100.173.189"
 // #define SERVER_IP_ADDR_2  "9.100.173.189"
 
-#define SERVER_IP_ADDR_1  "127.0.0.1"
-#define SERVER_IP_ADDR_2  "127.0.0.1"
+#define SERVER_IP_ADDR_1  "9.135.10.111"
+#define SERVER_IP_ADDR_2  "9.135.10.111"
 
 #define SERVER_PORT     6667
 

@@ -11,10 +11,10 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 
-#define PORT 1234
+#define PORT 6667
 #define MAX_CONNECTION 500
 #define MAX_EVENTS     500
-#define MAX_THREADS    2
+#define MAX_THREADS    1
 
 int epoll_register(int events_, int epoll_fd_, int fd_);
 

@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 
 #include "helper.h"
+#include "package.h"
 
 int tcp_init(int port, int max_connection);
 

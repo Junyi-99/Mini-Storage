@@ -15,4 +15,4 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # 并将名称保存到 SRCS 变量
 aux_source_directory(${PROJECT_SOURCE_DIR}/src SRCS)
 
-add_executable(fuck_storage_server ${SRCS} src/file.cpp src/file.h src/package.cpp src/package.h) # 入口为 server.cpp
+add_executable(fuck_storage_server ${SRCS} src/file.cpp include/file.h src/package.cpp include/package.h) # 入口为 server.cpp

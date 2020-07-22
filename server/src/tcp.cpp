@@ -1,4 +1,4 @@
-#include "tcp.h"
+#include "../include/tcp.h"
 
 int tcp_init(int port, int max_connection) {
 
@@ -58,13 +58,23 @@ int tcp_accept(int epoll_fd, int fd) {
 
 int tcp_receive(int client_fd) {
     int ret;
-    char buf[2048] = {0};
+    unsigned char buf[2048] = {0};
 
     while ((ret = recv(client_fd, buf, sizeof(buf), 0)) > 0) {
         // 正常接收到服务器数据
         printf("receive data from %d, length %d\n", client_fd, ret);
 
-        tcp_send(client_fd, buf, ret); // echo back
+        // 解包
+        Package *p = unpack_header(buf, ret);
+        printf("Package Length: %lu\n", p->package_len);
+        printf("  Message Type: %d\n", p->msg_type);
+        printf("  Block Length: %lu\n", p->block_len);
+        printf("       Disk No: %d\n", p->disk_no);
+        printf("     File Name: %s\n", p->filename);
+
+
+
+        //tcp_send(client_fd, buf, ret); // echo back
         close(client_fd);
         break;
     }

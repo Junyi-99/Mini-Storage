@@ -2,7 +2,7 @@
 // Created by Junyi Hou on 7/21/20.
 //
 
-#include "file.h"
+#include "../include/file.h"
 
 // 获取文件基本信息（文件名、大小、多少个块等等）
 // 失败返回 -1
