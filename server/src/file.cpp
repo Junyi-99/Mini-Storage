@@ -3,6 +3,7 @@
 //
 
 #include "file.h"
+
 // 获取文件基本信息（文件名、大小、多少个块等等）
 // 失败返回 -1
 uint32_t file_size(const char *filename) {
@@ -41,7 +42,7 @@ void file_set(const char *filename, uint32_t filesize) {
     // truncate 到指定大小
     // fsync 刷新缓冲区
 
-
+    return;
 }
 
 // 写文件块数据
@@ -57,9 +58,10 @@ int file_write(int disk_id, const char *filename, void *buffer, uint32_t length)
      写入数据
 
      */
+    return 0;
 }
 
 // 挂载磁盘（防止服务器磁盘没有挂载）
 int disk_mount(int disk_id) {
-
+    return 0;
 }

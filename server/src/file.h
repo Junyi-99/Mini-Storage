@@ -5,11 +5,6 @@
 #ifndef FUCK_STORAGE_SERVER_FILE_H
 #define FUCK_STORAGE_SERVER_FILE_H
 
-// 挂载磁盘
-// 申请空间
-// mmap 映射
-// 写文件到指定磁盘
-
 #include <cstdint>
 
 // 获取文件大小

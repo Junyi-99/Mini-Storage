@@ -49,36 +49,40 @@ int tcp_accept(int epoll_fd, int fd) {
         return -1;
     }
 
-    set_unblock(connect_fd);
+    //set_unblock(connect_fd);
 
-    epoll_register(EPOLLIN | EPOLLET, epoll_fd, connect_fd); // connection_fd 绑定到 epoll
+    // ET 模式 使用 ONESHOT，保证通知线程之后，不再次通知
+    epoll_register(EPOLLIN | EPOLLET | EPOLLONESHOT, epoll_fd, connect_fd); // connection_fd 绑定到 epoll
     return connect_fd;
 }
 
 int tcp_receive(int client_fd) {
-
     int ret;
-    char buf[128] = {0};
+    char buf[2048] = {0};
 
-    ret = recv(client_fd, buf, sizeof(buf), 0);
+    while ((ret = recv(client_fd, buf, sizeof(buf), 0)) > 0) {
+        // 正常接收到服务器数据
+        printf("receive data from %d, length %d\n", client_fd, ret);
+
+        tcp_send(client_fd, buf, ret); // echo back
+        close(client_fd);
+        break;
+    }
+
+
     if (ret < 0) {
         // 连接被重置
         if (errno == ECONNRESET) {
             close(client_fd);
         } else {
-            perror("read error");
+            perror("tcp_receive error");
+            close(client_fd);
         }
         return -1;
     } else if (ret == 0) {
         // 客户端关闭连接
         close(client_fd);
         printf("client %d connection closed\n", client_fd);
-    } else {
-        // 正常接收到服务器数据
-        printf("receive data from %d, length %d: %s\n", client_fd, ret, buf);
-
-        tcp_send(client_fd, buf, ret); // echo back
-        close(client_fd);
     }
     return 0;
 }

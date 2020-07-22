@@ -30,8 +30,8 @@ void *worker_work(void *ptr) {
 
         int job_fd = worker_queue.front();
         worker_queue.pop();
-
-        // ================= 取出一个任务 =================
+        lock.unlock();
+        // ================= ↑ 取出一个任务 ↑ =================
 
         printf("processing fd: %d\n", job_fd);
 
@@ -43,3 +43,4 @@ void *worker_work(void *ptr) {
     }
     return nullptr;
 }
+

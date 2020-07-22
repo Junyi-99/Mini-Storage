@@ -52,8 +52,8 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
-    // 注册 server_fd 到 epoll
-    epoll_register(EPOLLIN, epoll_fd, server_fd);
+    // 注册 server_fd 到 epoll，这里不能使用 ONESHOT 否则会丢失客户端数据
+    epoll_register(EPOLLIN | EPOLLET, epoll_fd, server_fd);
     while (true) {
         struct epoll_event events[MAX_EVENTS];
 
@@ -84,7 +84,6 @@ int main(int argc, const char *argv[]) {
                 // 有 客户端 的 fd 收到 数据
                 printf("RECEIVE: %d\n", fd);
                 worker_put(fd);
-
             } else {
 
             }
