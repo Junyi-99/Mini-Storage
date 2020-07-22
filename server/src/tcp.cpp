@@ -110,6 +110,7 @@ int tcp_receive(int client_fd) {
                 return -1;
             }
 
+
             unsigned char *mp = (unsigned char *) mmap(NULL, p->block_len, PROT_READ | PROT_WRITE, MAP_SHARED, wfd, 0);
             if (mp == MAP_FAILED) {
                 close(wfd);
@@ -117,7 +118,6 @@ int tcp_receive(int client_fd) {
                 exit(EXIT_FAILURE);
             }
 
-            //sendfile(wfd, client_fd, NULL, p->block_len);
             printf("Receiving data ... \n");
 
             double last_percent = 0.0f;
@@ -129,12 +129,13 @@ int tcp_receive(int client_fd) {
                     close(client_fd);
                     break;
                 }
-                
-                curr_percent = received * 100 / (double) p->block_len;
-                if (curr_percent - last_percent > 1)
-                    printf("Progress: %.2f%%\n", last_percent = curr_percent);
 
-                memcpy(mp, buf2, ret); // mmap 写法
+                curr_percent = received * 100 / (double) p->block_len;
+                if (curr_percent - last_percent > 1) {
+                    printf("Progress: %.2f%%\n", last_percent = curr_percent);
+                }
+
+                memcpy(mp + received, buf2, ret); // mmap 写法
 
                 received += ret;
                 printf("received: %d, total: %lu\n", ret, received);

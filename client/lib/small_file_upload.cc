@@ -94,15 +94,18 @@ void do_small_file_upload(int fd, char *file_name, size_t file_size) {
         exit(0);
     }
 
-    /* Get ack signal & close connection */
+    /* Get close signal */
     char *readBuffer[ACK_SIZE];
     ssize_t read_size = read(connfd, readBuffer, ACK_SIZE);
-    if (read_size != ACK_SIZE) {
+    if (read_size != 0) {
+        printf("read_size: %d\n", read_size);
+        
         perror("Send error!");
         close(connfd);
         close(fd);
         exit(0);
     }
+    printf("Finished\n");
     // printf("Get ACK: %s\n\n", package->filename);
     /* Finish task */
     close(connfd);
