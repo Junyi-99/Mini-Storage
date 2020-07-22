@@ -60,6 +60,7 @@ void *thr_start(void *arg) {
   const char *file_name;
   uint32_t fd, real_block_size;
   std::tie(file_name, fd, offset, real_block_size) = *tupPtr;
+  std::cout << "!!!!!" << offset << std::endl;
 
   // send head
   uint32_t disk_no = my_hash(file_name);
