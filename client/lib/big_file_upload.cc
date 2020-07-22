@@ -1,23 +1,6 @@
-#include "../../utils/tcp_socket.hpp"
-#include "../etc/config.h"
 #include "../include/big_file.h"
 #include <cstring>
-#include <memory>
 #include <pthread.h>
-#include <tuple>
-#include <vector>
-
-using ThreadArg = std::tuple<char *, uint32_t, off_t, uint32_t, uint32_t>;
-using ThreadArgPtr = std::shared_ptr<ThreadArg>;
-
-// TODO: 抽象 Package
-struct Package {
-  uint32_t package_len;
-  MSG_TYPE msg_type; // upload or download, small or big file
-  char filename[1024];
-  uint32_t block_len;
-  uint32_t disk_no;
-};
 
 Package *set_package(uint32_t package_len, MSG_TYPE msg_type,
                      const char *filename, uint32_t block_len,
@@ -95,7 +78,7 @@ void do_big_file_upload(uint32_t fd, char *file_name,
 
     // if fail: again
     if (res != 0) {
-      std::cerr << "创建第i=" << i--
+      std::cerr << "(big_file_upload)创建第i=" << i--
                 << "个线程时失败,pthread_id=" << pthread_self() << std::endl;
       continue;
     }

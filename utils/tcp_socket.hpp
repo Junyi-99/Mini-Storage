@@ -1,7 +1,5 @@
 #pragma once
 #include <arpa/inet.h>
-#include <cassert>
-#include <cstdio>
 #include <iostream>
 #include <netinet/in.h>
 #include <stdint.h>
@@ -28,10 +26,7 @@ inline bool CHECK_RET(int32_t res, const char *errMsg) {
 class TcpSocket {
 public:
   TcpSocket(uint32_t fd = -1) : _fd(fd) {}
-  ~TcpSocket() {
-    if (!(_fd < 0))
-      Close();
-  }
+  ~TcpSocket() { Close(); }
 
   bool Socket() {
     _fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -40,9 +35,11 @@ public:
   }
 
   bool Close() {
+    if (_fd >= 0)
+      return true;
     int32_t res = close(_fd);
     _fd = -1;
-    return CHECK_RET(res, "close error!");
+    return CHECK_RET(res, "close error!!");
   }
 
   bool Bind(const std::string &ip, const uint16_t port) {
@@ -88,12 +85,13 @@ public:
 
   bool Send(const void *buf, const size_t size) {
     ssize_t res = send(_fd, buf, size, 0);
+    std::cout << "=====================send size" << res << std::endl;
     return CHECK_RET(res, "send error!!");
   }
 
   bool SendFile(const uint32_t file_fd, off_t *offset, const size_t size) {
-    // int32_t res = send(_fd, buf.c_str(), buf.size(), 0);
     ssize_t res = sendfile(_fd, file_fd, offset, size);
+    std::cout << ">>>>>>>>>>>>>>>>>>sendfile size " << res << std::endl;
     return CHECK_RET(res, "sendfile error!");
   }
 
