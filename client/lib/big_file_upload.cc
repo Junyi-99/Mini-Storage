@@ -60,7 +60,6 @@ void *thr_start(void *arg) {
   const char *file_name;
   uint32_t fd, real_block_size;
   std::tie(file_name, fd, offset, real_block_size) = *tupPtr;
-  std::cout << "!!!!!" << offset << std::endl;
 
   // send head
   uint32_t disk_no = my_hash(file_name);
@@ -81,14 +80,14 @@ void do_big_file_upload(const uint32_t fd, const char *file_name,
                         const uint64_t file_size) {
   // last_block:
   const uint32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
-  const uint32_t block_size = file_size / (BIG_FILE_UPLOAD_BLOCK_NUM);
-  const uint32_t last_block = file_size % (BIG_FILE_UPLOAD_BLOCK_NUM);
+  const uint32_t block_size = file_size / thr_num;
+  const uint32_t last_block = file_size % thr_num;
 
   pthread_t *tid = new pthread_t[thr_num];
   for (uint32_t i = 0; i < thr_num; ++i) {
     // [i*block_size, (i+1)*block_size) => 左闭右开
     // [(thr_num-2)*block_size, (thr_num-1)*block_size+last_block) => 最后一块
-    const off_t offset = i * BIG_FILE_UPLOAD_BLOCK_NUM;
+    const off_t offset = i * block_size;
     const uint32_t real_block_size =
         (i == thr_num - 1) ? (block_size + last_block) : block_size;
     ThreadArg arg = std::make_tuple(file_name, fd, offset, real_block_size);
@@ -100,6 +99,7 @@ void do_big_file_upload(const uint32_t fd, const char *file_name,
                 << "个线程时失败,pthread_id=" << pthread_self() << std::endl;
       continue;
     }
+    std::cout << "i: " << i << "  block_size: " << block_size << std::endl;
   }
   for (uint32_t i = 0; i < thr_num; ++i) {
     pthread_join(tid[i], nullptr);
