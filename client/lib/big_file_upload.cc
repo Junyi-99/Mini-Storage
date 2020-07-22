@@ -7,11 +7,10 @@
 #include <tuple>
 #include <vector>
 
-using ThreadArg = std::tuple<char *, uint32_t, off_t, uint32_t>;
+using ThreadArg = std::tuple<char *, uint32_t, off_t, uint32_t, uint32_t>;
 using ThreadArgPtr = std::shared_ptr<ThreadArg>;
 
-// TODO: 抽象my_hash, Package
-// TODO: encode
+// TODO: 抽象 Package
 struct Package {
   uint32_t package_len;
   MSG_TYPE msg_type; // upload or download, small or big file
@@ -20,28 +19,14 @@ struct Package {
   uint32_t disk_no;
 };
 
-/*
- * SDBMHash function to calculate send to which disk(server)
- * @param str  input filepath
- * @return num
- */
-uint32_t my_hash(const char *str) {
-  uint32_t hash = 0;
-  while (*str) {
-    // equivalent to: hash = 65599*hash + (*str++);
-    hash = (*str++) + (hash << 6) + (hash << 16) - hash;
-  }
-  return (hash & SERVER_DISK_COUNT);
-}
-
 Package *set_package(uint32_t package_len, MSG_TYPE msg_type,
                      const char *filename, uint32_t block_len,
                      uint32_t disk_no) {
   Package *package = new Package;
   package->package_len = package_len;
   package->msg_type = msg_type;
-  strncpy(package->filename, filename, strlen(filename) + 1);
-  // strcpy(package->filename, filename);
+  // strncpy(package->filename, filename, strlen(filename) + 1);
+  strcpy(package->filename, filename);
   package->block_len = block_len;
   package->disk_no = disk_no;
   return package;
@@ -61,23 +46,18 @@ void *thr_start(void *arg) {
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
   off_t offset;
   char *file_name;
-  uint32_t fd, real_block_size;
-  std::tie(file_name, fd, offset, real_block_size) = *tupPtr;
+  uint32_t fd, real_block_size, disk_no;
+  std::tie(file_name, fd, offset, real_block_size, disk_no) = *tupPtr;
   std::cout << "thr arg " << pthread_self() << "==>" << file_name << "," << fd
-            << "," << offset << "," << real_block_size << std::endl;
+            << "," << offset << "," << real_block_size << disk_no << std::endl;
 
   // send head
-  /*
-   * uint32_t disk_no = my_hash(file_name);
-   * std::shared_ptr<Package> package(set_package(
-   *     sizeof(Package), BIG_UPLOAD, file_name, real_block_size, disk_no));
-   * socket_fd.Send((void *)&(*package), package->package_len);
-   */
+  std::shared_ptr<Package> package(set_package(
+      sizeof(Package), BIG_UPLOAD, file_name, real_block_size, disk_no));
+  socket_fd.Send((void *)&(*package), package->package_len);
 
   // send file block
-  /*
-   * socket_fd.SendFile(fd, &offset, real_block_size);
-   */
+  socket_fd.SendFile(fd, &offset, real_block_size);
 
   // TODO: recv到关闭信号后close
   socket_fd.Close();
@@ -89,8 +69,7 @@ void *thr_start(void *arg) {
 void do_big_file_upload(uint32_t fd, char *file_name,
                         const uint64_t file_size) {
   // last_block:
-  // const uint32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
-  const uint32_t thr_num = 10;
+  const uint32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
   const uint32_t block_size = file_size / thr_num;
   const uint32_t last_block = file_size % thr_num;
 
@@ -108,7 +87,7 @@ void do_big_file_upload(uint32_t fd, char *file_name,
               << real_block_size << std::endl;
 
     ThreadArgPtr arg =
-        ThreadArgPtr(new ThreadArg(file_name, fd, offset, real_block_size));
+        ThreadArgPtr(new ThreadArg(file_name, fd, offset, real_block_size, i));
     // WARN: 不可用std::move(arg)
     vec[i] = arg;
 
