@@ -23,7 +23,6 @@ void *thr_start(void *arg) {
   socket_fd.Socket();
   // TODO: 两个服务器存储
   socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
-  std::cout << "connect success! sock_fd: " << socket_fd.GetFd() << std::endl;
 
   // init arg
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
@@ -31,8 +30,11 @@ void *thr_start(void *arg) {
   char *file_name;
   int32_t fd, real_block_size, disk_no;
   std::tie(file_name, fd, offset, real_block_size, disk_no) = *tupPtr;
-  std::cout << "thr arg " << pthread_self() << "==>" << file_name << "," << fd
-            << "," << offset << "," << real_block_size << disk_no << std::endl;
+  std::cout << "thr arg " << pthread_self() << "==>"
+            << "file_name:" << file_name << "    fd:" << fd
+            << "    offset:" << offset
+            << "    real_block_size:" << real_block_size
+            << "    idisk_no:" << disk_no << std::endl;
 
   // send head
   std::shared_ptr<Package> package(set_package(
@@ -65,15 +67,16 @@ void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
     off_t offset = i * block_size;
     int32_t real_block_size =
         (i == thr_num - 1) ? (block_size + last_block) : block_size;
-    std::cout << i << ". offset && real_block_size ==>" << offset << ":"
-              << real_block_size << std::endl;
+    // std::cout << i << ". offset && real_block_size ==>" << offset << ":"
+    // << real_block_size << std::endl;
 
     ThreadArgPtr arg =
         ThreadArgPtr(new ThreadArg(file_name, fd, offset, real_block_size, i));
     // WARN: 不可用std::move(arg)
     vec[i] = arg;
 
-    int32_t res = pthread_create(&tid[i], nullptr, thr_start, (void *)&arg);
+    int32_t res =
+        pthread_create(&tid[i], nullptr, thr_start, (void *)&(vec[i]));
 
     // if fail: again
     if (res != 0) {
