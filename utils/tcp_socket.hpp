@@ -83,16 +83,26 @@ public:
     return CHECK_RET(res, "connect error!");
   }
 
-  bool Send(const void *buf, const size_t size) {
-    ssize_t res = send(_fd, buf, size, 0);
-    std::cout << "=====================send size" << res << std::endl;
-    return CHECK_RET(res, "send error!!");
+  bool Send(const void *buf, const ssize_t size) {
+    ssize_t send_size = 0;
+    while (send_size < size) {
+      ssize_t res = send(_fd, buf, size, 0);
+      if (CHECK_RET(res, "send error!!"))
+        return false;
+      send_size += res;
+    }
+    return true;
   }
 
-  bool SendFile(const int32_t file_fd, off_t *offset, const size_t size) {
-    ssize_t res = sendfile(_fd, file_fd, offset, size);
-    std::cout << ">>>>>>>>>>>>>>>>>>sendfile size " << res << std::endl;
-    return CHECK_RET(res, "sendfile error!");
+  bool SendFile(const int32_t file_fd, off_t *offset, const ssize_t size) {
+    ssize_t send_size = 0;
+    while (send_size < size) {
+      ssize_t res = sendfile(_fd, file_fd, offset, size);
+      if (!CHECK_RET(res, "sendfile error!!"))
+        return false;
+      send_size += res;
+    }
+    return true;
   }
 
   ssize_t Recv(void *buf, const size_t size) {
