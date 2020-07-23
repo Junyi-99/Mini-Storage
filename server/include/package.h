@@ -11,7 +11,7 @@
 struct Package {
     uint64_t package_len;
     uint32_t msg_type;
-    char filename[16];
+    char filename[256];
     uint64_t block_len;
     uint32_t disk_no;
 };

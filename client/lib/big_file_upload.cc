@@ -2,9 +2,9 @@
 #include <cstring>
 #include <pthread.h>
 
-Package *set_package(int32_t package_len, MSG_TYPE msg_type,
-                     const char *filename, int32_t block_len, int32_t disk_no) {
-  Package *package = new Package;
+Package *set_package(int64_t package_len, MSG_TYPE msg_type,
+                     const char *filename, int64_t block_len, int32_t disk_no) {
+  auto *package = new Package;
   package->package_len = package_len;
   package->msg_type = msg_type;
   // strncpy(package->filename, filename, strlen(filename) + 1);
