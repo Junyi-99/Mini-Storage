@@ -1,9 +1,15 @@
-*.o
 .ccls-cache/
+.vscode/
+.idea/
+
+*.o
 */bld/*
-.vscode
+*/cmake-build-debug-remote-host/*
+
 test.file*
 test_big.file*
 filelist
 thread_pool.hpp
 fufu_server/
+build/
+cmake-build-debug-remote-host/
