@@ -12,9 +12,9 @@ struct Package {
   char filename[1024];
   uint32_t block_len;
   uint32_t disk_no;
-  Package()
-      : package_len(sizeof(Package)), msg_type(INIT_STATUS), filename(""),
-        block_len(-1), disk_no(-1) {}
+  // Package()
+  // : package_len(sizeof(Package)), msg_type(INIT_STATUS), filename(""),
+  // block_len(0), disk_no(0) {}
 };
 
 using ThreadArg = std::tuple<char *, uint32_t, off_t, uint32_t, uint32_t>;
