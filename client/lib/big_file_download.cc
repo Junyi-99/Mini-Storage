@@ -10,6 +10,7 @@ inline int32_t upper(int32_t block_size, int32_t page_size) {
 void *thr_start(void *arg) {
   TcpSocket socket_fd = TcpSocket();
   socket_fd.Socket();
+  // TODO: 从两个服务器下载
   socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
   std::cout << "connect success! sock_fd: " << socket_fd.GetFd() << std::endl;
 

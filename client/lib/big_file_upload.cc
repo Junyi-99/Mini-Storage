@@ -21,6 +21,7 @@ void *thr_start(void *arg) {
   // socket init
   TcpSocket socket_fd = TcpSocket();
   socket_fd.Socket();
+  // TODO: 两个服务器存储
   socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
   std::cout << "connect success! sock_fd: " << socket_fd.GetFd() << std::endl;
 
