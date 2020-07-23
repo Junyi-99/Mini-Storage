@@ -7,7 +7,9 @@ add_definitions(-std=c++11)
 aux_source_directory(./lib LIB_FILE)
 add_library (LIB ${LIB_FILE})
 
+find_package(Threads)
+
 # aux_source_directory(./src SRCS_FILE)
 # add_executable(upload ${SRCS_FILE})
 add_executable(upload ./src/upload.cc)
-target_link_libraries(upload LIB)
+target_link_libraries(upload LIB ${CMAKE_THREAD_LIBS_INIT})

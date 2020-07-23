@@ -7,7 +7,9 @@
 */cmake-build-debug-remote-host/*
 
 test.file*
+test_big.file*
 filelist
-
-cmake-build-debug-remote-host/
+thread_pool.hpp
+fufu_server/
 build/
+cmake-build-debug-remote-host/
