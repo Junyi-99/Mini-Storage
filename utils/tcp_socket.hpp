@@ -25,7 +25,7 @@ inline bool CHECK_RET(int32_t res, const char *errMsg) {
 
 class TcpSocket {
 public:
-  TcpSocket(uint32_t fd = -1) : _fd(fd) {}
+  TcpSocket(int32_t fd = -1) : _fd(fd) {}
   ~TcpSocket() { Close(); }
 
   bool Socket() {
@@ -52,7 +52,7 @@ public:
   }
 
   // TODO: max = 10?
-  bool Listen(const uint32_t backlog = 10) {
+  bool Listen(const int32_t backlog = 10) {
     int32_t res = listen(_fd, backlog);
     return CHECK_RET(res, "listen error!");
   }
@@ -89,7 +89,7 @@ public:
     return CHECK_RET(res, "send error!!");
   }
 
-  bool SendFile(const uint32_t file_fd, off_t *offset, const size_t size) {
+  bool SendFile(const int32_t file_fd, off_t *offset, const size_t size) {
     ssize_t res = sendfile(_fd, file_fd, offset, size);
     std::cout << ">>>>>>>>>>>>>>>>>>sendfile size " << res << std::endl;
     return CHECK_RET(res, "sendfile error!");
@@ -107,8 +107,8 @@ public:
   }
 
   void SetFd(const int fd) { _fd = fd; }
-  uint32_t GetFd() const { return _fd; }
+  int32_t GetFd() const { return _fd; }
 
 private:
-  uint32_t _fd;
+  int32_t _fd;
 };
