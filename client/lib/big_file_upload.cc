@@ -21,8 +21,6 @@ void *thr_start(void *arg) {
   // socket init
   TcpSocket socket_fd = TcpSocket();
   socket_fd.Socket();
-  // TODO: 两个服务器存储
-  socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
 
   // init arg
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
@@ -36,6 +34,12 @@ void *thr_start(void *arg) {
             << "    real_block_size:" << real_block_size
             << "    idisk_no:" << disk_no << std::endl;
 
+  // dispatch
+  if (disk_no < SERVER_DISK_COUNT / 2)
+    socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
+  else
+    socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
+
   // send head
   std::shared_ptr<Package> package(set_package(
       sizeof(Package), BIG_UPLOAD, file_name, real_block_size, disk_no));
@@ -46,7 +50,6 @@ void *thr_start(void *arg) {
 
   // TODO: recv到关闭信号后close
   socket_fd.Close();
-
   std::cout << "(big_file_upload)pthread exit " << pthread_self() << std::endl;
   return nullptr;
 }
