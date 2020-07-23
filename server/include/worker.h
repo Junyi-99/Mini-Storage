@@ -15,6 +15,7 @@
 #include <condition_variable>
 
 #include "tcp.h"
+#include "jobs.h"
 
 void worker_put(int fd);
 

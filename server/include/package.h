@@ -16,8 +16,12 @@ struct Package {
     uint32_t disk_no;
 };
 
-enum MSG_TYPE {
-    SMALL_UPLOAD = 0, SMALL_DOWNLOAD, BIG_UPLOAD, BIG_DOWNLOAD
+enum class MSG_TYPE {
+    SMALL_UPLOAD = 0,
+    SMALL_DOWNLOAD,
+    BIG_UPLOAD,
+    BIG_DOWNLOAD,
+    INIT_STAUS
 };
 
 Package *
