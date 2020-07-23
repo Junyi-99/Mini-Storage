@@ -19,8 +19,8 @@ int tcp_init(int port, int max_connection);
 
 int tcp_accept(int epoll_fd, int fd);
 
-int tcp_receive(int client_fd);
+int tcp_receive(int client_fd, void *buf, size_t n);
 
-int tcp_send(int sock_fd, char *buffer, std::size_t length);
+int tcp_send(int sock_fd, char *buffer, size_t length);
 
 #endif //FUCK_STORAGE_SERVER_TCP_H

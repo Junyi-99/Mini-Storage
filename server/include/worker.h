@@ -9,6 +9,9 @@
 #include <queue>
 #include <thread>
 #include <cassert>
+#include <sys/sendfile.h>
+#include <sys/types.h>
+#include <sys/mman.h>
 #include <condition_variable>
 
 #include "tcp.h"
