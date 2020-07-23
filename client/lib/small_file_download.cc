@@ -21,8 +21,6 @@ int do_small_file_download(int socket_fd, char *file_name, u_int64_t file_size) 
 
   uint64_t ret = 0;
   uint64_t received = 0;
-  double last_percent = 0.0f;
-  double curr_percent = 0.0f;
 
   auto *buff = new unsigned char[81920];
   while (received < file_size) {

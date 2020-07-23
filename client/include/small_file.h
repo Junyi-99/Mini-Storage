@@ -10,8 +10,6 @@
 */
 unsigned int hash(char *str);
 
-int tcp_connect(const char *ip_addr);
-
 void do_small_file_upload(int fd, char *file_name, u_int64_t file_size);
 
 void do_small_file_download(int socket_fd, char *file_name, u_int64_t file_size);

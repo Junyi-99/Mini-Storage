@@ -1,5 +1,5 @@
 #include "../etc/config.h"
-
+#include "../include/tcp.h"
 struct Package {
     uint64_t package_len;
     uint32_t msg_type;
@@ -22,23 +22,6 @@ unsigned int my_hash(char *str) {
     }
 
     return (hash & SERVER_DISK_COUNT);
-}
-
-int tcp_connect(const char *ip_addr) {
-    int confd = socket(AF_INET, SOCK_STREAM, 0);
-
-    struct sockaddr_in serveraddr;
-    bzero(&serveraddr, sizeof(serveraddr));
-    serveraddr.sin_family = AF_INET;
-    inet_pton(AF_INET, ip_addr, &serveraddr.sin_addr.s_addr);
-    serveraddr.sin_port = htons(SERVER_PORT);
-
-    connect(confd, (struct sockaddr *) &serveraddr, sizeof(serveraddr));
-    if (confd == -1) {
-        perror("Connect error!");
-        close(confd);
-    }
-    return confd;
 }
 
 Package *

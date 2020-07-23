@@ -11,13 +11,9 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include "../etc/config.h"
 
-#include "helper.h"
-#include "package.h"
-
-int tcp_init(int port, int max_connection);
-
-int tcp_accept(int epoll_fd, int fd);
+int tcp_connect(const char *ip_addr);
 
 int tcp_receive(int client_fd, void *buf, size_t n);
 
