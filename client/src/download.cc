@@ -6,10 +6,12 @@
 
 int main(int argc, char *argv[]) {
     // TODO: 文件名切分，去除路径
-
+    char *filename = split_filename(argv[1]);
     // TODO: 向server请求文件大小
     int connfd = tcp_connect(SERVER_IP_ADDR_1);
-    Package *package = set_package(sizeof(Package), INIT_STATUS, argv[1], 0, 0);
+    Package *package = set_package(sizeof(Package), INIT_STATUS, filename, 0, 0);
+    delete filename;
+
     ssize_t send_size = send(connfd, (void *) package, package->package_len, 0);
     if (send_size != package->package_len) {
         perror("Send error!");

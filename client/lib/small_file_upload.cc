@@ -1,5 +1,7 @@
 #include "../etc/config.h"
 #include "../include/tcp.h"
+#include <assert.h>
+
 struct Package {
     uint64_t package_len;
     uint32_t msg_type;
@@ -22,6 +24,18 @@ unsigned int my_hash(char *str) {
     }
 
     return (hash & SERVER_DISK_COUNT);
+}
+
+char* split_filename(char* filename) {
+    uint32_t filename_begin = 0;
+    uint32_t str_index;
+    for(str_index = 0; *(filename + str_index) != '\0'; ++str_index)
+        if (*(filename + str_index) == '/')
+            filename_begin = str_index + 1;
+    assert (filename_begin < str_index);
+    char *filename_split = new char[256];
+    memcpy(filename_split, filename + filename_begin, str_index - filename_begin);
+    return filename_split;
 }
 
 Package *
