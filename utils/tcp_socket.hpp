@@ -96,7 +96,7 @@ public:
   }
 
   ssize_t Recv(void *buf, const size_t size) {
-    ssize_t len = recv(_fd, buf, size - 1, 0);
+    ssize_t len = recv(_fd, buf, size, 0);
     if (len < 0) {
       perror("recv error!");
     }
