@@ -10,17 +10,23 @@ inline int32_t upper(int32_t block_size, int32_t page_size) {
 void *thr_start(void *arg) {
   TcpSocket socket_fd = TcpSocket();
   socket_fd.Socket();
-  // TODO: 从两个服务器下载
-  socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
-  std::cout << "connect success! sock_fd: " << socket_fd.GetFd() << std::endl;
 
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
   off_t offset;
   char *file_name;
   int32_t fd, real_block_size, disk_no;
   std::tie(file_name, fd, offset, real_block_size, disk_no) = *tupPtr;
-  std::cout << "thr arg " << pthread_self() << "==>" << file_name << "," << fd
-            << "," << offset << "," << real_block_size << disk_no << std::endl;
+  std::cout << "thr arg " << pthread_self() << "==>"
+            << "file_name:" << file_name << "    fd:" << fd
+            << "    offset:" << offset
+            << "    real_block_size:" << real_block_size
+            << "    idisk_no:" << disk_no << std::endl;
+
+  // dispatch
+  if (disk_no < SERVER_DISK_COUNT / 2)
+    socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
+  else
+    socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
 
   // send head
   std::shared_ptr<Package> package(set_package(
