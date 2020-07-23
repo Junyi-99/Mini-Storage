@@ -45,7 +45,7 @@ void *thr_start(void *arg) {
   // TODO: recv到关闭信号后close
   socket_fd.Close();
 
-  std::cout << "pthread exit " << pthread_self() << std::endl;
+  std::cout << "(big_file_upload)pthread exit " << pthread_self() << std::endl;
   return nullptr;
 }
 
