@@ -39,7 +39,7 @@ void *worker_work(void *ptr) {
         // 接收数据
         unsigned char buffer[sizeof(Package)] = {0};
         if (tcp_receive(job_fd, buffer, sizeof(Package)) < 0) {
-            continue;
+            return nullptr;
         }
 
         // 解析包

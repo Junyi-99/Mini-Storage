@@ -78,19 +78,16 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
 }
 
 int job_write_to_server_write(int socket_fd, Package *p) {
-
     // 创建文件，truncate 到指定大小
     int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+    creat(p->filename, flag);
+    truncate(p->filename, p->block_len);
 
-    char filename[32];
-    sprintf(filename, "%s.disk%d", p->filename, p->disk_no);
-
-    int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
+    int wfd = open(p->filename, O_RDWR, flag);
     if (wfd == -1) {
         perror("Cannot open output file\n");
         return -1;
     }
-    ftruncate(wfd, p->block_len);
 
     printf("Receiving data ... \n");
 
@@ -102,10 +99,7 @@ int job_write_to_server_write(int socket_fd, Package *p) {
     auto *buff = new unsigned char[81920];
     while (received < p->block_len) {
         ret = tcp_receive(socket_fd, buff, sizeof(buff));
-        if (ret == -1) {
-            printf("Error occurred! \n");
-            break;
-        }
+
         curr_percent = (double) received * 100 / p->block_len;
         if (curr_percent - last_percent > 5) {
             printf("Progress: %.2f%%\n", last_percent = curr_percent);
