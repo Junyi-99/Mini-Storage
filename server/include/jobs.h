@@ -31,18 +31,14 @@ extern struct job jobs[MAX_JOBS];
 // Handler Function Definitions ↓
 // 不用管 socket_fd 和 Package *p 的释放，外面会帮你释放的
 // 别自己手动释放
+int job_write_to_server_mmap(int socket_fd, Package *p);
 
-int job_small_upload_mmap(int socket_fd, Package *p);
+int job_write_to_server_write(int socket_fd, Package *p);
 
-int job_small_upload_write(int socket_fd, Package *p);
+int job_read_from_server_read(int socket_fd, Package *p);
 
-int job_small_download(int socket_fd, Package *p);
-
-int job_big_upload(int socket_fd, Package *p);
-
-int job_big_download(int socket_fd, Package *p);
+int job_read_from_server_mmap(int socket_fd, Package *p);
 
 int job_init_status(int socket_fd, Package *p);
-
 
 #endif //FUCK_STORAGE_JOBS_H

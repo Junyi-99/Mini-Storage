@@ -7,12 +7,11 @@
 
 Package *
 pack_header(uint64_t package_len, uint32_t msg_type, char *filename, uint64_t block_len, uint32_t disk_no) {
-    auto *package = new Package{
-            .package_len = package_len,
-            .msg_type = msg_type,
-            .block_len = block_len,
-            .disk_no = disk_no,
-    };
+    auto *package = new Package;
+    package->package_len = package_len;
+    package->msg_type = msg_type;
+    package->block_len = block_len;
+    package->disk_no = disk_no;
     strcpy(package->filename, filename);
     return package;
 }
