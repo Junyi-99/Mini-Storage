@@ -25,9 +25,9 @@ void *thr_start(void *arg) {
 
   // dispatch
   if (disk_no < SERVER_DISK_COUNT / 2)
-  socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
+    socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
   else
-  socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
+    socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
 
   // send head
   std::shared_ptr<Package> package(
@@ -37,7 +37,7 @@ void *thr_start(void *arg) {
   // send file block
   socket_fd.SendFile(fd, &offset, real_block_size);
 
-  // TODO: recv到关闭信号后close
+  // TODO: recv到关闭信号后close?
   socket_fd.Close();
   std::cout << "(big_file_upload)pthread exit " << pthread_self() << std::endl;
   return nullptr;
@@ -45,8 +45,8 @@ void *thr_start(void *arg) {
 
 void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
   // last_block:
-  // const int32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
-  const int32_t thr_num = 4;
+  const int32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
+  // const int32_t thr_num = 4; // test
   const int32_t block_size = file_size / thr_num;
   const int32_t last_block = file_size % thr_num;
 
