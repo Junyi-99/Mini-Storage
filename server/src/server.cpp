@@ -24,15 +24,38 @@ void *task(void *p) {
  * */
 int main(int argc, const char *argv[]) {
 
-    auto result = pool.enqueue([](int answer, int c) { return answer; }, 42, 32);
-    std::cout << result.get() << std::endl;
+    // result = pool.enqueue([](int answer, int c) { return answer; }, 42, 32);
+    //std::cout << result.get() << std::endl;
+    int colorList[] = {196, 197, 198, 199, 200, 201, 165, 129, 93, 57, 21, 27, 33, 39, 45, 51, 50, 49, 48, 47};
+
+    printf("服务器正在做无用的彩虹打印工作，请稍后\n");
+    float progress = 0.0;
+    while (progress < 100.0) {
+
+        printf("%3d %% [", (int)progress);
+
+        for (int i = 0; i < progress; ++i) {
+            printf("\x1b[48;5;%dm \x1b[0m", colorList[(int) i / 5]);
+        }
+        printf("]\r");
+        std::cout.flush();
+
+        progress += 1; // for demonstration only
+        //printf("Progress: %.2f%%  \e[?25l\n", progress);
+
+        usleep(50 * 1000);
+    }
+    printf("\n");
+
+
 
 
     int server_fd;
-    if ((server_fd = tcp_init(PORT, MAX_CONNECTION)) < 0) {
+    if ((server_fd = tcp_init(SERVER_PORT, MAX_CONNECTION)) < 0) {
         return 1;
     }
 
+    printf("Server Running on 0.0.0.0:%d\n", SERVER_PORT);
 
     // 创建 worker 线程
     pthread_t threads[MAX_THREADS] = {0};

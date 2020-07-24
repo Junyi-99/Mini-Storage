@@ -11,7 +11,6 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 
-#define PORT 6667
 #define MAX_CONNECTION 500
 #define MAX_EVENTS     500
 #define MAX_THREADS    1

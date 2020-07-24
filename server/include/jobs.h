@@ -14,7 +14,7 @@
 #include <condition_variable>
 
 #include "tcp.h"
-#include "package.h"
+#include "../../etc/config.hpp"
 
 #define ADDJOB(type, handler) {type, handler}
 #define MAX_JOBS 5 // 与 MSG_TYPE 有关

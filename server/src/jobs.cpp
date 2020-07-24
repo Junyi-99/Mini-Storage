@@ -6,12 +6,14 @@
 
 
 struct job jobs[MAX_JOBS] = {
-        ADDJOB(MSG_TYPE::SMALL_UPLOAD, job_write_to_server_write),
-        ADDJOB(MSG_TYPE::SMALL_DOWNLOAD, job_read_from_server_read),
-        ADDJOB(MSG_TYPE::BIG_UPLOAD, job_write_to_server_mmap),
-        ADDJOB(MSG_TYPE::BIG_DOWNLOAD, job_read_from_server_mmap),
-        ADDJOB(MSG_TYPE::INIT_STAUS, job_init_status),
+        ADDJOB(SMALL_UPLOAD, job_write_to_server_write),
+        ADDJOB(SMALL_DOWNLOAD, job_read_from_server_read),
+        ADDJOB(BIG_UPLOAD, job_write_to_server_mmap),
+        ADDJOB(BIG_DOWNLOAD, job_read_from_server_mmap),
+        ADDJOB(INIT_STATUS, job_init_status),
 };
+
+// 让程序支持新的 job，在 jobs[MAX_JOBS] 里添加相应的函数即可！
 
 int job_write_to_server_mmap(int socket_fd, Package *p) {
 
@@ -19,7 +21,7 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
     int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
     char filename[32];
-    sprintf(filename, "%s.disk%d", p->filename, p->disk_no);
+    sprintf(filename, "%s.disk%d", p->file_name, p->disk_no);
 
     int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
     if (wfd == -1) {
@@ -83,7 +85,7 @@ int job_write_to_server_write(int socket_fd, Package *p) {
     int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
     char filename[32];
-    sprintf(filename, "%s.disk%d", p->filename, p->disk_no);
+    sprintf(filename, "%s.disk%d", p->file_name, p->disk_no);
 
     int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
     if (wfd == -1) {
@@ -107,6 +109,7 @@ int job_write_to_server_write(int socket_fd, Package *p) {
             break;
         }
         curr_percent = (double) received * 100 / p->block_len;
+
         if (curr_percent - last_percent > 5) {
             printf("Progress: %.2f%%\n", last_percent = curr_percent);
         }

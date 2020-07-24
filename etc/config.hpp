@@ -1,6 +1,4 @@
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
-
+#pragma once
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -30,12 +28,27 @@
 #define BIG_FILE_UPLOAD_BLOCK_NUM 24
 #define BIG_FILE_DOWNLOAD_THR_NUM 24
 
-enum MSG_TYPE {
-  SMALL_UPLOAD = 0,
+enum MSG_TYPE : int8_t {
+  INIT_STATUS = 0,
+  SMALL_UPLOAD,
   SMALL_DOWNLOAD,
   BIG_UPLOAD,
   BIG_DOWNLOAD,
-  INIT_STATUS
 };
 
-#endif
+#pragma pack(push, 1)
+struct Package {
+  MSG_TYPE msg_type;
+  uint64_t block_len;
+  uint32_t disk_no;
+  char file_name[256];
+
+  Package(MSG_TYPE tp = INIT_STATUS, uint64_t blen = 0, uint32_t dno = 0,
+          char *fname = nullptr)
+      : msg_type(tp), block_len(blen), disk_no(dno) {
+    // bzero((void *)file_name, sizeof(file_name));
+    memset(file_name, 0, sizeof(file_name));
+    strcpy(file_name, fname);
+  }
+};
+#pragma pack(pop)
