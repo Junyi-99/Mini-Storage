@@ -1,10 +1,10 @@
-#include "../../utils/tcp_socket.hpp"
-#include "../etc/config.h"
+#include "../../etc/config.hpp"
 #include "../include/big_file.h"
 #include "../include/small_file.h"
+#include "../utils/tcp_socket.hpp"
 
 int main(int argc, char *argv[]) {
-  if (argc == 0) {
+  if (argc == 1) {
     std::cout << "error   =>>   文件名??" << std::endl;
     return 0;
   }

@@ -2,30 +2,6 @@
 #include <cstring>
 #include <pthread.h>
 
-struct HeadPackage {
-  int32_t head_package_len;
-  MSG_TYPE msg_type;
-  char file_name[1024];
-  uint32_t total_size;
-  HeadPackage(int32_t len = sizeof(HeadPackage), MSG_TYPE tp = INIT_STATUS,
-              char *name = nullptr, uint32_t size = 0)
-      : head_package_len(len), msg_type(tp), total_size(size) {
-    strcpy(file_name, name);
-  }
-};
-
-Package *set_package(int32_t package_len, MSG_TYPE msg_type,
-                     const char *filename, int32_t block_len, int32_t disk_no) {
-  Package *package = new Package;
-  package->package_len = package_len;
-  package->msg_type = msg_type;
-  // strncpy(package->filename, filename, strlen(filename) + 1);
-  strcpy(package->filename, filename);
-  package->block_len = block_len;
-  package->disk_no = disk_no;
-  return package;
-}
-
 /*
  * thread func
  */
@@ -45,18 +21,18 @@ void *thr_start(void *arg) {
   // socket init
   TcpSocket socket_fd = TcpSocket();
   socket_fd.Socket();
-  socket_fd.Connect("9.134.13.102", 6666); // test
+  // socket_fd.Connect("9.134.13.102", 6666); // test
 
-  // // dispatch
-  // if (disk_no < SERVER_DISK_COUNT / 2)
-  // socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
-  // else
-  // socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
+  // dispatch
+  if (disk_no < SERVER_DISK_COUNT / 2)
+  socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
+  else
+  socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
 
   // send head
-  std::shared_ptr<Package> package(set_package(
-      sizeof(Package), BIG_UPLOAD, file_name, real_block_size, disk_no));
-  socket_fd.Send((void *)&(*package), package->package_len);
+  std::shared_ptr<Package> package(
+      new Package(BIG_UPLOAD, real_block_size, disk_no, file_name));
+  socket_fd.Send((void *)&(*package), sizeof(Package));
 
   // send file block
   socket_fd.SendFile(fd, &offset, real_block_size);
@@ -82,9 +58,9 @@ void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
   TcpSocket socket_fd = TcpSocket();
   socket_fd.Socket();
   socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
-  std::shared_ptr<HeadPackage> head_package(
-      new HeadPackage(sizeof(HeadPackage), BIG_UPLOAD, file_name, file_size));
-  socket_fd.Send((void *)&(*head_package), head_package->head_package_len);
+  std::shared_ptr<Package> head_package(
+      new Package(BIG_UPLOAD, file_size, 0, file_name));
+  socket_fd.Send((void *)&(*head_package), sizeof(Package));
   socket_fd.Close();
 
   for (int32_t i = 0; i < thr_num; ++i) {

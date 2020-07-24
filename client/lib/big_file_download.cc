@@ -29,9 +29,9 @@ void *thr_start(void *arg) {
     socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
 
   // send head
-  std::shared_ptr<Package> package(set_package(
-      sizeof(Package), BIG_DOWNLOAD, file_name, real_block_size, disk_no));
-  socket_fd.Send((void *)&(*package), package->package_len);
+  std::shared_ptr<Package> package(
+      new Package(BIG_DOWNLOAD, real_block_size, disk_no, file_name));
+  socket_fd.Send((void *)&(*package), sizeof(Package));
 
   // recv
   // char *real_file_name = getcwd(nullptr, 0);

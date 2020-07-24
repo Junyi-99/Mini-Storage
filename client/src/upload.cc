@@ -1,4 +1,4 @@
-#include "../etc/config.h"
+#include "../../etc/config.hpp"
 #include "../include/big_file.h"
 #include "../include/small_file.h"
 #include <iostream>
@@ -16,7 +16,6 @@ int main(int argc, char *argv[]) {
   } else {
     do_small_file_upload(fd, argv[1], file_size);
   }
-  // printf("%s   %d \n", argv[1], file_size);
   close(fd);
-  exit(0);
+  return 0;
 }
