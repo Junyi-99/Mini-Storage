@@ -2,21 +2,9 @@
 #include <cstring>
 #include <pthread.h>
 
-struct HeadPackage {
-  int32_t head_package_len;
-  MSG_TYPE msg_type;
-  char file_name[1024];
-  uint32_t total_size;
-  HeadPackage(int32_t len = sizeof(HeadPackage), MSG_TYPE tp = INIT_STATUS,
-              char *name = nullptr, uint32_t size = 0)
-      : head_package_len(len), msg_type(tp), total_size(size) {
-    strcpy(file_name, name);
-  }
-};
-
-Package *set_package(int32_t package_len, MSG_TYPE msg_type,
-                     const char *filename, int32_t block_len, int32_t disk_no) {
-  Package *package = new Package;
+Package *set_package(int64_t package_len, MSG_TYPE msg_type,
+                     const char *filename, int64_t block_len, int32_t disk_no) {
+  auto *package = new Package;
   package->package_len = package_len;
   package->msg_type = msg_type;
   // strncpy(package->filename, filename, strlen(filename) + 1);
@@ -30,6 +18,12 @@ Package *set_package(int32_t package_len, MSG_TYPE msg_type,
  * thread func
  */
 void *thr_start(void *arg) {
+  // socket init
+  TcpSocket socket_fd = TcpSocket();
+  socket_fd.Socket();
+  // TODO: 两个服务器存储
+  socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
+
   // init arg
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
   off_t offset;
@@ -42,17 +36,6 @@ void *thr_start(void *arg) {
             << "    real_block_size:" << real_block_size
             << "    idisk_no:" << disk_no << std::endl;
 
-  // socket init
-  TcpSocket socket_fd = TcpSocket();
-  socket_fd.Socket();
-  socket_fd.Connect("9.134.13.102", 6666); // test
-
-  // // dispatch
-  // if (disk_no < SERVER_DISK_COUNT / 2)
-  // socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
-  // else
-  // socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
-
   // send head
   std::shared_ptr<Package> package(set_package(
       sizeof(Package), BIG_UPLOAD, file_name, real_block_size, disk_no));
@@ -63,29 +46,20 @@ void *thr_start(void *arg) {
 
   // TODO: recv到关闭信号后close
   socket_fd.Close();
+
   std::cout << "(big_file_upload)pthread exit " << pthread_self() << std::endl;
   return nullptr;
 }
 
 void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
   // last_block:
-  // const int32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
-  const int32_t thr_num = 4;
+  const int32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
   const int32_t block_size = file_size / thr_num;
   const int32_t last_block = file_size % thr_num;
 
   pthread_t *tid = new pthread_t[thr_num];
   // change ThreadArgPtr's scope
   std::vector<ThreadArgPtr> vec(thr_num);
-
-  // send head package
-  TcpSocket socket_fd = TcpSocket();
-  socket_fd.Socket();
-  socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
-  std::shared_ptr<HeadPackage> head_package(
-      new HeadPackage(sizeof(HeadPackage), BIG_UPLOAD, file_name, file_size));
-  socket_fd.Send((void *)&(*head_package), head_package->head_package_len);
-  socket_fd.Close();
 
   for (int32_t i = 0; i < thr_num; ++i) {
     // [i*block_size, (i+1)*block_size) => 左闭右开
