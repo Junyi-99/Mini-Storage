@@ -1,5 +1,4 @@
 #pragma once
-#pragma pack(1)
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -37,6 +36,7 @@ enum MSG_TYPE : int8_t {
   BIG_DOWNLOAD,
 };
 
+#pragma pack(push, 1)
 struct Package {
   MSG_TYPE msg_type;
   uint64_t block_len;
@@ -49,3 +49,4 @@ struct Package {
     memset(file_name, 0, sizeof(file_name));
   }
 };
+#pragma pack(pop)

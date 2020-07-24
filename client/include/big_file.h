@@ -1,6 +1,6 @@
 #pragma once
-#include "../../utils/tcp_socket.hpp"
-#include "../etc/config.hpp"
+#include "../../etc/config.hpp"
+#include "../utils//tcp_socket.hpp"
 #include <memory>
 #include <stdint.h>
 #include <tuple>
