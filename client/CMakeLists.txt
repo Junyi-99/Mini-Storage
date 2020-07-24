@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 
 project (fuck-storage)
 
+# TODO: [-W -Wall] 显示更详细的警告信息, [-O3] 最大程度对代码进行优化
 add_definitions(-std=c++11)
 
 aux_source_directory(./lib LIB_FILE)
