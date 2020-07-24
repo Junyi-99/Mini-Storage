@@ -16,6 +16,7 @@
 
 #include "tcp.h"
 #include "jobs.h"
+#include "../../etc/config.hpp"
 
 void worker_put(int fd);
 

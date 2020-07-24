@@ -36,20 +36,21 @@ void *worker_work(void *ptr) {
 
         printf("processing fd: %d\n", job_fd);
 
-        // 接收数据
+        // 接收包头
         unsigned char buffer[sizeof(Package)] = {0};
         if (tcp_receive(job_fd, buffer, sizeof(Package)) < 0) {
             continue;
         }
 
-        // 解析包
-        Package *p = unpack_header(buffer);
+        // 解析包头
+        auto *p = (Package *) buffer;
+
         printf("==============================================\n");
-        printf("Package Length: %lu\n", p->package_len);
-        printf("Message Type:   %d\n", p->msg_type);
+        printf("               PACKAGE RECEIVED               \n");
+        printf("Message Type:   %d \n", p->msg_type);
         printf("Block Length:   %lu\n", p->block_len);
-        printf("Disk No:        %d\n", p->disk_no);
-        printf("File Name:      %s\n", p->filename);
+        printf("Disk No:        %d \n", p->disk_no);
+        printf("File Name:      %s \n", p->file_name);
         printf("==============================================\n");
 
         // 根据控制码调用相关的处理函数
@@ -60,7 +61,7 @@ void *worker_work(void *ptr) {
             }
         }
 
-        delete p;
+
         close(job_fd);
         // 任务执行完毕，关闭 job_fd
         // 任务 = 包头 + payload
