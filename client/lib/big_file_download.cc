@@ -2,6 +2,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+// @description: 向上取整
 inline int32_t upper(int32_t block_size, int32_t page_size) {
   return (block_size % page_size) ? block_size * ((block_size / page_size) + 1)
                                   : block_size;
@@ -29,9 +30,9 @@ void *thr_start(void *arg) {
     socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
 
   // send head
-  std::shared_ptr<Package> package(set_package(
-      sizeof(Package), BIG_DOWNLOAD, file_name, real_block_size, disk_no));
-  socket_fd.Send((void *)&(*package), package->package_len);
+  std::shared_ptr<Package> package(
+      new Package(BIG_DOWNLOAD, real_block_size, disk_no, file_name));
+  socket_fd.Send((void *)&(*package), sizeof(Package));
 
   // recv
   // char *real_file_name = getcwd(nullptr, 0);
@@ -54,16 +55,15 @@ void *thr_start(void *arg) {
     return nullptr;
   }
 
-  // char buf[1024 * 4] = {0};
   uint64_t writed_size = 0;
   while (true) {
-    // ssize_t recv_size = socket_fd.Recv(buf, sizeof(buf) - 1);
     ssize_t recv_size =
         socket_fd.Recv(mmap_ptr + writed_size, real_block_size - writed_size);
     if (!CHECK_RET(recv_size, "Recv error! please check big_file_downlaod!"))
       break;
     if (recv_size == 0)
       break;
+    // msync(mmap_ptr + writed_size, recv_size, MS_SYNC);
     writed_size += recv_size;
   }
 
@@ -91,7 +91,8 @@ void do_big_file_download(char *file_name, const uint64_t file_size) {
         ThreadArgPtr(new ThreadArg(file_name, -1, offset, real_block_size, i));
     vec[i] = arg;
 
-    int32_t res = pthread_create(&tid[i], nullptr, thr_start, (void *)&arg);
+    int32_t res =
+        pthread_create(&tid[i], nullptr, thr_start, (void *)&(vec[i]));
 
     if (res != 0) {
       std::cerr << "(big_file_downlaod)创建第i=" << i--
