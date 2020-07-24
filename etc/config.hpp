@@ -43,10 +43,12 @@ struct Package {
   uint32_t disk_no;
   char file_name[256];
 
-  Package(MSG_TYPE tp = INIT_STATUS, uint64_t blen = 0, uint32_t dno = 0)
+  Package(MSG_TYPE tp = INIT_STATUS, uint64_t blen = 0, uint32_t dno = 0,
+          char *fname = nullptr)
       : msg_type(tp), block_len(blen), disk_no(0) {
     // bzero((void *)file_name, sizeof(file_name));
     memset(file_name, 0, sizeof(file_name));
+    strcpy(file_name, fname);
   }
 };
 #pragma pack(pop)
