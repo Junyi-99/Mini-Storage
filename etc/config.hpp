@@ -1,6 +1,5 @@
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
-
+#pragma once
+#pragma pack(1)
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -38,4 +37,15 @@ enum MSG_TYPE : int8_t {
   BIG_DOWNLOAD,
 };
 
-#endif
+struct Package {
+  MSG_TYPE msg_type;
+  uint64_t block_len;
+  uint32_t disk_no;
+  char file_name[256];
+
+  Package(MSG_TYPE tp = INIT_STATUS, uint64_t blen = 0, uint32_t dno = 0)
+      : msg_type(tp), block_len(blen), disk_no(0) {
+    // bzero((void *)file_name, sizeof(file_name));
+    memset(file_name, 0, sizeof(file_name));
+  }
+};
