@@ -63,6 +63,7 @@ void *thr_start(void *arg) {
       break;
     if (recv_size == 0)
       break;
+    // msync(mmap_ptr + writed_size, recv_size, MS_SYNC);
     writed_size += recv_size;
   }
 
