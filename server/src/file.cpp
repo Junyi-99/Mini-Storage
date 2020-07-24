@@ -44,14 +44,15 @@ File_Opt::File_Opt(const char* filename) {
 
 //析构时，关闭文件，解除映射，落盘
 File_Opt::~File_Opt(){
-    if (close(fd) < 0) {
-        printf("close %s failed!\n",file_name);
+    if (msync(mmap_addr,file_size,MS_SYNC) < 0) {
+        printf("%s write to disk failed! \n",file_name);
+        perror(file_name);
     }
     if (munmap(mmap_addr,file_size) < 0) {
         printf("close map of %s failed! \n",file_name);
     }
-    if (msync(mmap_addr,file_size,MS_SYNC) < 0) {
-        //printf("%s write to disk failed! \n",file_name);
+    if (close(fd) < 0) {
+        printf("close %s failed!\n",file_name);
     }
 }
 
@@ -63,8 +64,7 @@ char* File_Opt::mmap_write_byte_part(char* addr, const char* content){
     int len = strlen(content);
     char* opt_addr_ptr = addr;
     memcpy(opt_addr_ptr,content,len);
-    opt_addr_ptr[len] = '\n';
-    opt_addr_ptr = opt_addr_ptr + len + 1;
+    opt_addr_ptr = opt_addr_ptr + len;
     return opt_addr_ptr;
 }
 
@@ -167,25 +167,29 @@ int file_set(const char* filename,  uint32_t filesize) {
         printf("mmap error: %s\n", strerror(errno));
         return -2;
     }
+    
     char* opt_for_info = (char*)info_ptr;
 
     memcpy(opt_for_info,filesize_str,str_len);
+
+    int temp;
+    if ((temp = msync((void*)info_ptr,str_len + 1,MS_ASYNC)) < 0) {
+        printf("%s write to disk failed! \n",filename);
+        perror(filename);
+        return -4;
+    }
+
     if ((munmap(info_ptr, str_len + 1)) < 0) {
        printf("unmap %s_info error \n",filename); 
        return -3;
     }
 
+
+
     if (close(info_fd) < 0 ) {
         printf("close %s_info error \n",filename);
         return -4;
     }
-    /*
-    int temp;
-    if ((temp = msync(info_ptr,str_len + 1,MS_ASYNC)) < 0) {
-        printf("%s write to disk failed! \n",filename);
-        return -4;
-    }
-    */
+    
     return 1;
 }
-
