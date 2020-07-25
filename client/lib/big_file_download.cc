@@ -13,9 +13,7 @@ char *global_mmap_start_ptr = nullptr;
 uint64_t global_block_size = 0;
 
 void *thr_start(void *arg) {
-  TcpSocket socket_fd = TcpSocket();
-  socket_fd.Socket();
-
+  // arg init
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
   off_t offset;
   char *file_name;
@@ -23,7 +21,9 @@ void *thr_start(void *arg) {
   uint64_t real_block_size;
   std::tie(file_name, __fd, offset, real_block_size, disk_no) = *tupPtr;
 
-  // dispatch
+  // socket init
+  TcpSocket socket_fd = TcpSocket();
+  socket_fd.Socket();
   if (disk_no < SERVER_DISK_COUNT / 2)
     socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
   else
@@ -90,6 +90,7 @@ void do_big_file_download(char *file_name, const uint64_t file_size) {
     }
   }
 
+  // destroy
   for (int32_t i = 0; i < thr_num; ++i) {
     pthread_join(tid[i], nullptr);
   }
