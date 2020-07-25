@@ -126,8 +126,8 @@ int job_write_to_server_write(int socket_fd, Package *p) {
             printf("Error occurred! \n");
             break;
         }
-        curr_percent = (double) received * 100 / p->block_len;
 
+        curr_percent = (double) received * 100 / p->block_len;
         if (curr_percent - last_percent > 5) {
             printf("Progress: %.2f%%\n", last_percent = curr_percent);
         }
