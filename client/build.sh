@@ -9,7 +9,7 @@ if [[ "$flush_option" -eq 1 ]] ; then
   mkdir bld
   cd bld
   cmake .. \
-    -DCMAKE_BUILD_TYPE="$build_type"                         
+    -DCMAKE_BUILD_TYPE="$build_type"
 else
   echo "No Flush"
   cd bld
