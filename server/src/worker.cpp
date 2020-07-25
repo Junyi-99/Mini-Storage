@@ -19,8 +19,10 @@ void worker_put(int fd) {
         __mutex.unlock();
     }
 }
+
 int headers = 0;
 int bodies = 0;
+
 // 循环从队列里取出任务，解析包头，判断类型，然后交给 job.handler 处理
 void *worker_work(void *ptr) {
     while (true) {

@@ -1,5 +1,6 @@
 #ifndef __FILE__SYSTEM__
 #define __FILE__SYSTEM__
+
 #include<iostream>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -36,28 +37,31 @@
 */
 class File_Opt {
 public:
-    File_Opt(const char* filename, off_t filesize); //写文件时，需要提供：文件名 及 文件大小
-    File_Opt(const char* filename); //读文件时，只需传入：文件名
+    File_Opt(const char *filename, off_t filesize); //写文件时，需要提供：文件名 及 文件大小
+    File_Opt(const char *filename); //读文件时，只需传入：文件名
     ~File_Opt();
-    void write_by_offset(const char* content, off_t off_set);   //写入文件，需要提供：内容 及 偏移量
-    char* read_all();   //读取全部内容
-    char* read_part(off_t off_set, off_t NumOfChar);    //读取部分内容，需要提供：偏移量 及 字符个数
+
+    void write_by_offset(const char *content, off_t off_set);   //写入文件，需要提供：内容 及 偏移量
+    char *read_all();   //读取全部内容
+    char *read_part(off_t off_set, off_t NumOfChar);    //读取部分内容，需要提供：偏移量 及 字符个数
     int get_total_file_size();
+
 private:
     int fd;
-    void* mmap_addr;
-    char* operation_postion;
-    const char* file_name;
-    const char* file_path;
+    void *mmap_addr;
+    char *operation_postion;
+    const char *file_name;
+    const char *file_path;
     off_t file_size;
     off_t total_file_size;
-    char* mmap_write_byte_part(char* addr, const char* content);
+
+    char *mmap_write_byte_part(char *addr, const char *content);
 };
 
 //记录total文件大小
-int file_set(const char* filename, uint32_t filesize);
+int file_set(const char *filename, uint32_t filesize);
 
 //获取total文件大小
-off_t getTotalSize(const char* filename);
+off_t getTotalSize(const char *filename);
 
 #endif // !__FILE__SYSTEM__

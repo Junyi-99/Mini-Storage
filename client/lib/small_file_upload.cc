@@ -3,17 +3,16 @@
 #include <assert.h>
 
 
-
 Package *
 set_package(MSG_TYPE msg_type, char filename[256], size_t block_len, unsigned int disk_no) {
     Package *package = new Package(msg_type, block_len, disk_no, filename);
     return package;
 }
 
-char* split_filename(char* filename) {
+char *split_filename(char *filename) {
     uint32_t filename_begin = 0;
     uint32_t str_index;
-    for(str_index = 0; *(filename + str_index) != '\0'; ++str_index)
+    for (str_index = 0; *(filename + str_index) != '\0'; ++str_index)
         if (*(filename + str_index) == '/')
             filename_begin = str_index + 1;
     assert (filename_begin < str_index);
