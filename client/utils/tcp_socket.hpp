@@ -58,8 +58,6 @@ public:
         int32_t res = listen(_fd, backlog);
         return CHECK_RET(res, "listen error!");
     }
-<<<<<<< HEAD:utils/tcp_socket.hpp
-
     bool Accept(TcpSocket &peer, std::string *ip = nullptr,
                 uint16_t *port = nullptr) {
         sockaddr_in addr;
@@ -75,51 +73,29 @@ public:
         if (port != nullptr)
             *port = ntohs(addr.sin_port);
         return true;
-=======
-    peer.SetFd(new_sock);
-    if (ip != nullptr)
-      *ip = inet_ntoa(addr.sin_addr);
-    if (port != nullptr)
-      *port = ntohs(addr.sin_port);
-    return true;
-  }
-
-  bool Connect(const std::string &ip, const uint16_t port) {
-    sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(ip.c_str());
-    addr.sin_port = htons(port);
-    int32_t res = connect(_fd, (sockaddr *)&addr, sizeof(addr));
-    return CHECK_RET(res, "connect error!");
-  }
-
-  bool Send(const void *buf, const ssize_t size) {
-    ssize_t send_size = 0;
-    while (send_size < size) {
-      ssize_t res = send(_fd, buf, size, 0);
-      if (CHECK_RET(res, "send error!!"))
-        return false;
-      send_size += res;
     }
-    return true;
-  }
 
-  bool SendFile(const int32_t file_fd, off_t *offset, const ssize_t size) {
-    ssize_t send_size = 0;
-    while (send_size < size) {
-      ssize_t res = sendfile(_fd, file_fd, offset, size);
-      if (!CHECK_RET(res, "sendfile error!!"))
-        return false;
-      send_size += res;
+    bool Send(const void *buf, const ssize_t size) {
+        ssize_t send_size = 0;
+        while (send_size < size) {
+            ssize_t res = send(_fd, buf, size, 0);
+            if (CHECK_RET(res, "send error!!"))
+                return false;
+            send_size += res;
+        }
+        return true;
     }
-    return true;
-  }
 
-  ssize_t Recv(void *buf, const size_t size) {
-    ssize_t len = recv(_fd, buf, size, 0);
-    if (len < 0) {
-      perror("recv error!");
->>>>>>> 9a994cd6b73872836cca57f9d19c0d70a9ce13eb:client/utils/tcp_socket.hpp
+    bool SendFile(const int32_t file_fd, off_t *offset, const ssize_t size) {
+        ssize_t send_size = 0;
+        *offset = 0;
+        while (send_size < size) {
+            ssize_t res = sendfile(_fd, file_fd, offset, size);
+            if (!CHECK_RET(res, "sendfile error!!"))
+                return false;
+            send_size += res;
+        }
+        return true;
     }
 
     bool Connect(const std::string &ip, const uint16_t port) {
@@ -129,12 +105,6 @@ public:
         addr.sin_port = htons(port);
         int32_t res = connect(_fd, (sockaddr *) &addr, sizeof(addr));
         return CHECK_RET(res, "connect error!");
-    }
-
-    bool Send(const void *buf, const size_t size) {
-        ssize_t res = send(_fd, buf, size, 0);
-        //std::cout << "=====================send size" << res << std::endl;
-        return CHECK_RET(res, "send error!!");
     }
 
     bool SendFile(int disk_id, const int32_t file_fd, off_t *offset, const size_t size) {

@@ -1,8 +1,8 @@
 #! /bin/bash
 
 flush_option=1
-# build_type="Debug"
-build_type="Release"
+build_type="Debug"
+#build_type="Release"
 
 if [[ "$flush_option" -eq 1 ]] ; then
   rm -rf bld

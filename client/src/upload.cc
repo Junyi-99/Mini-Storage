@@ -17,10 +17,7 @@ int main(int argc, char *argv[]) {
   } else {
     do_small_file_upload(fd, filename, file_size);
   }
-<<<<<<< HEAD
   delete filename;
-=======
->>>>>>> 9a994cd6b73872836cca57f9d19c0d70a9ce13eb
   close(fd);
   return 0;
 }

@@ -1,14 +1,6 @@
-#include "../etc/config.h"
+#include "../../etc/config.hpp"
 #include "../include/tcp.h"
 #include <assert.h>
-
-struct Package {
-    uint64_t package_len;
-    uint32_t msg_type;
-    char filename[256];
-    uint64_t block_len;
-    uint32_t disk_no;
-};
 
 /*
   SDBMHash function to calculate send to which disk(server)
@@ -26,6 +18,16 @@ unsigned int my_hash(char *str) {
     return (hash & SERVER_DISK_COUNT);
 }
 
+Package *
+set_package(MSG_TYPE msg_type, char filename[256], size_t block_len, unsigned int disk_no) {
+    Package *package = new Package;
+    package->msg_type = msg_type;
+    strcpy(package->file_name, filename);
+    package->block_len = block_len;
+    package->disk_no = disk_no;
+    return package;
+}
+
 char* split_filename(char* filename) {
     uint32_t filename_begin = 0;
     uint32_t str_index;
@@ -36,17 +38,6 @@ char* split_filename(char* filename) {
     char *filename_split = new char[256];
     memcpy(filename_split, filename + filename_begin, str_index - filename_begin);
     return filename_split;
-}
-
-Package *
-set_package(size_t package_len, unsigned int msg_type, char filename[256], size_t block_len, unsigned int disk_no) {
-    Package *package = new Package;
-    package->package_len = package_len;
-    package->msg_type = msg_type;
-    strcpy(package->filename, filename);
-    package->block_len = block_len;
-    package->disk_no = disk_no;
-    return package;
 }
 
 void do_small_file_upload(int fd, char *file_name, size_t file_size) {
@@ -60,9 +51,9 @@ void do_small_file_upload(int fd, char *file_name, size_t file_size) {
     int connfd = tcp_connect(ip_addr);
 
     /* Send head */
-    Package *package = set_package(sizeof(Package), SMALL_UPLOAD, file_name, file_size, disk_no);
-    ssize_t send_size = write(connfd, (void *) package, package->package_len);
-    if (send_size != package->package_len) {
+    Package *package = set_package(SMALL_UPLOAD, file_name, file_size, disk_no);
+    ssize_t send_size = write(connfd, (void *) package, Package_len);
+    if (send_size != Package_len) {
         perror("Send error!");
         close(connfd);
         close(fd);

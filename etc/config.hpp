@@ -52,3 +52,5 @@ struct Package {
   }
 };
 #pragma pack(pop)
+
+const u_int32_t Package_len = sizeof(Package);
