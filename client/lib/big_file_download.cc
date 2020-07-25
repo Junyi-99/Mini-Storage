@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 // @description: 向上取整
-inline int32_t upper(int32_t block_size, int32_t page_size) {
+inline uint64_t upper(uint64_t block_size, uint32_t page_size) {
   return (block_size % page_size) ? block_size * ((block_size / page_size) + 1)
                                   : block_size;
 }
@@ -13,9 +13,10 @@ void *thr_start(void *arg) {
   socket_fd.Socket();
 
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
-  off_t offset;
+  off64_t offset;
   char *file_name;
-  int32_t fd, real_block_size, disk_no;
+  int32_t fd, disk_no;
+  uint64_t real_block_size;
   std::tie(file_name, fd, offset, real_block_size, disk_no) = *tupPtr;
   std::cout << "thr arg " << pthread_self() << "==>"
             << "file_name:" << file_name << "    fd:" << fd
@@ -45,8 +46,6 @@ void *thr_start(void *arg) {
   // long page_size = sysconf(_SC_PAGESIZE);
   // real_block_size:
   //    必须是page_size整数倍,否则向上对齐,对齐部分用'\0'填充,改变填充部分不会影响文件数据
-  // MAP_SHARED:
-  //    写入内存后直接写入文件
   char *mmap_ptr =
       (char *)mmap(nullptr, real_block_size, PROT_WRITE | PROT_EXEC, MAP_SHARED,
                    file_fd, offset);
@@ -77,15 +76,15 @@ void *thr_start(void *arg) {
 
 void do_big_file_download(char *file_name, const uint64_t file_size) {
   const int32_t thr_num = BIG_FILE_DOWNLOAD_THR_NUM;
-  const int32_t block_size = file_size / thr_num;
-  const int32_t last_block = file_size % thr_num;
+  const uint64_t block_size = file_size / thr_num;
+  const uint64_t last_block = file_size % thr_num;
 
   pthread_t *tid = new pthread_t[thr_num];
   std::vector<ThreadArgPtr> vec(thr_num);
 
   for (int32_t i = 0; i < thr_num; ++i) {
     off_t offset = i * block_size;
-    int32_t real_block_size =
+    uint64_t real_block_size =
         (i == thr_num - 1) ? (block_size + last_block) : block_size;
     ThreadArgPtr arg =
         ThreadArgPtr(new ThreadArg(file_name, -1, offset, real_block_size, i));
