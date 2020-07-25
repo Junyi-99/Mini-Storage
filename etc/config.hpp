@@ -1,4 +1,5 @@
 #pragma once
+
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -29,29 +30,32 @@
 #define BIG_FILE_DOWNLOAD_THR_NUM 24
 
 enum MSG_TYPE : int8_t {
-  INIT_STATUS = 0,
-  SMALL_UPLOAD,
-  SMALL_DOWNLOAD,
-  BIG_META,
-  BIG_UPLOAD,
-  BIG_DOWNLOAD,
+    INIT_STATUS = 0,
+    FILE_SIZE_REQUEST,   // 向服务器请求文件大小信息
+    SMALL_UPLOAD,   // 向服务器发送小文件（文件头里就有小文件的文件大小了）
+    SMALL_DOWNLOAD,
+    BIG_META,       // 向服务器发送文件大小信息（准备接收大文件）
+    BIG_UPLOAD,     // 向服务器发送大文件的文件块
+    BIG_DOWNLOAD,
 };
 
 #pragma pack(push, 1)
-struct Package {
-  MSG_TYPE msg_type;
-  uint64_t block_len;
-  uint32_t disk_no;
-  char file_name[256];
 
-  Package(MSG_TYPE tp = INIT_STATUS, uint64_t blen = 0, uint32_t dno = 0,
-          char *fname = nullptr)
-      : msg_type(tp), block_len(blen), disk_no(dno) {
-    // bzero((void *)file_name, sizeof(file_name));
-    memset(file_name, 0, sizeof(file_name));
-    if(fname) strcpy(file_name, fname);
-  }
+struct Package {
+    MSG_TYPE msg_type;
+    uint64_t block_len;
+    uint32_t disk_no;
+    char file_name[256];
+
+    Package(MSG_TYPE tp = INIT_STATUS, uint64_t blen = 0, uint32_t dno = 0,
+            char *fname = nullptr)
+            : msg_type(tp), block_len(blen), disk_no(dno) {
+        // bzero((void *)file_name, sizeof(file_name));
+        memset(file_name, 0, sizeof(file_name));
+        if (fname) strcpy(file_name, fname);
+    }
 };
+
 #pragma pack(pop)
 
 const u_int32_t Package_len = sizeof(Package);

@@ -13,7 +13,7 @@
 
 #define MAX_CONNECTION 500
 #define MAX_EVENTS     500
-#define MAX_THREADS    2
+#define MAX_THREADS    8
 
 int epoll_register(int events_, int epoll_fd_, int fd_);
 

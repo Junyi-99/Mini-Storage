@@ -124,6 +124,7 @@ public:
         ssize_t len = recv(_fd, buf, size, 0);
         if (len < 0) {
             perror("recv error!");
+            exit(1);
         }
         if (len == 0) {
             std::cout << "recv return 0!" << std::endl;

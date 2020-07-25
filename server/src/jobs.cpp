@@ -6,6 +6,7 @@
 #include "file.h"
 
 struct job jobs[MAX_JOBS] = {
+        ADDJOB(FILE_SIZE_REQUEST, job_get_file_size),
         ADDJOB(SMALL_UPLOAD, job_write_to_server_write),
         ADDJOB(SMALL_DOWNLOAD, job_read_from_server_read),
         ADDJOB(BIG_META, job_write_to_server_file_meta),
@@ -19,6 +20,11 @@ struct job jobs[MAX_JOBS] = {
 
 // 让程序支持新的 job，在 jobs[MAX_JOBS] 里添加相应的函数即可！
 
+int job_get_file_size(int socket_fd, Package *p) {
+    int64_t size = getTotalSize(p->file_name);
+    tcp_send(socket_fd, (char *) (&size), sizeof(size));
+    return 0;
+}
 
 
 int job_write_to_server_file_meta(int socket_fd, Package *p) {
@@ -57,9 +63,8 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
     double last_percent = 0.0f;
     double curr_percent = 0.0f;
 
-    auto *buff = new unsigned char[81920];
     while (received < p->block_len) {
-        ret = tcp_receive(socket_fd, buff, sizeof(buff));
+        ret = tcp_receive(socket_fd, mp + received, 81920);
         if (ret == -1) {
             printf("Error occurred!\n");
             break;
@@ -70,10 +75,8 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
             printf("Progress: %.2f%%\n", last_percent = curr_percent);
         }
 
-        memcpy(mp + received, buff, ret); // mmap 写法
         received += ret;
     }
-    delete[] buff;
 
     printf("Syncing the disk ... \n");
     if (msync(mp, p->block_len, MS_SYNC) == -1) {
@@ -98,7 +101,7 @@ int job_write_to_server_write(int socket_fd, Package *p) {
     int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
     char filename[280];
-    sprintf(filename, "%s.disk%d", p->file_name, p->disk_no);
+    sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
 
     int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
     if (wfd == -1) {
@@ -139,6 +142,19 @@ int job_write_to_server_write(int socket_fd, Package *p) {
 }
 
 int job_read_from_server_read(int socket_fd, Package *p) {
+
+    char filename[280];
+    sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
+    int fd = open(filename, O_RDONLY, 00666);
+
+    struct stat stat{};
+    fstat(fd, &stat);               // 获取文件信息
+    off_t file_size = stat.st_size;
+
+    off_t offset = 0;
+
+    tcp_sendfile(socket_fd, fd, &offset, file_size);
+
     return 0;
 }
 

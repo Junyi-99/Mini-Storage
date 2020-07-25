@@ -2,21 +2,7 @@
 #include "../include/tcp.h"
 #include <assert.h>
 
-/*
-  SDBMHash function to calculate send to which disk(server)
-  @param str  input filepath
-  @return num 
-*/
-unsigned int my_hash(char *str) {
-    unsigned int hash = 0;
 
-    while (*str) {
-        // equivalent to: hash = 65599*hash + (*str++);
-        hash = (*str++) + (hash << 6) + (hash << 16) - hash;
-    }
-
-    return (hash & SERVER_DISK_COUNT);
-}
 
 Package *
 set_package(MSG_TYPE msg_type, char filename[256], size_t block_len, unsigned int disk_no) {

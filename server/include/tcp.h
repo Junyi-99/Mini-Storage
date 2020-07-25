@@ -22,4 +22,6 @@ int tcp_receive(int client_fd, void *buf, size_t n);
 
 int tcp_send(int sock_fd, char *buffer, size_t length);
 
+int tcp_sendfile(int sock_fd, int file_fd, off_t *offset, size_t bytes_need_to_send);
+
 #endif //FUCK_STORAGE_SERVER_TCP_H

@@ -17,7 +17,7 @@
 #include "../../etc/config.hpp"
 
 #define ADDJOB(type, handler) {type, handler}
-#define MAX_JOBS 6 // 与 MSG_TYPE 有关
+#define MAX_JOBS 7 // 与 MSG_TYPE 有关
 
 typedef int (*HandlerFunc)(int socket_fd, Package *p);
 
@@ -31,6 +31,8 @@ extern struct job jobs[MAX_JOBS];
 // Handler Function Definitions ↓
 // 不用管 socket_fd 和 Package *p 的释放，外面会帮你释放的
 // 别自己手动释放
+int job_get_file_size(int socket_fd, Package *p);
+
 int job_write_to_server_file_meta(int socket_fd, Package *p);
 
 int job_write_to_server_mmap(int socket_fd, Package *p);

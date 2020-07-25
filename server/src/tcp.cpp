@@ -105,3 +105,15 @@ int tcp_send(int sock_fd, char *buffer, size_t length) {
 
     return 0;
 }
+
+int tcp_sendfile(int sock_fd, int file_fd, off_t *offset, size_t bytes_need_to_send) {
+    while (bytes_need_to_send > 0) {
+        ssize_t res = sendfile(sock_fd, file_fd, offset, bytes_need_to_send);
+        if (res < 0) {
+            perror("send file error");
+            return false;
+        }
+        bytes_need_to_send -= res;
+    }
+    return true;
+}
