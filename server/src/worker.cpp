@@ -20,8 +20,6 @@ void worker_put(int fd) {
     }
 }
 
-int headers = 0;
-int bodies = 0;
 
 // 循环从队列里取出任务，解析包头，判断类型，然后交给 job.handler 处理
 void *worker_work(void *ptr) {
@@ -37,8 +35,6 @@ void *worker_work(void *ptr) {
         lock.unlock();
         // ================= ↑ 取出一个任务 ↑ =================
 
-        printf("processing fd: %d\n", job_fd);
-
         // 接收包头
         unsigned char buffer[sizeof(Package)] = {0};
         if (tcp_receive(job_fd, buffer, sizeof(Package)) < 0) {
@@ -50,13 +46,35 @@ void *worker_work(void *ptr) {
 
         printf("==============================================\n");
         printf("          PACKAGE HEADER RECEIVED             \n");
-        printf("Message Type:   %d \n", p->msg_type);
+        printf("Message Type:   ");
+        switch ((MSG_TYPE) p->msg_type) {
+            case INIT_STATUS:
+                printf("INIT_STATUS\n");
+                break;
+            case FILE_SIZE_REQUEST:
+                printf("FILE_SIZE_REQUEST\n");
+                break;
+            case SMALL_UPLOAD:
+                printf("SMALL_UPLOAD\n");
+                break;
+            case SMALL_DOWNLOAD:
+                printf("SMALL_DOWNLOAD\n");
+                break;
+            case BIG_META:
+                printf("BIG_META\n");
+                break;
+            case BIG_UPLOAD:
+                printf("BIG_UPLOAD\n");
+                break;
+            case BIG_DOWNLOAD:
+                printf("BIG_DOWNLOAD\n");
+                break;
+        }
         printf("Block Length:   %lu\n", p->block_len);
         printf("Disk No:        %d \n", p->disk_no);
         printf("File Name:      %s \n", p->file_name);
         printf("==============================================\n");
-        headers++;
-        printf("headers: %d\n", headers);
+
         // 根据控制码调用相关的处理函数
         // 包括继续接收后续的包，也由 handler 进行处理
         for (auto &job : jobs) {

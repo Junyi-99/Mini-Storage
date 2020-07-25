@@ -143,10 +143,14 @@ int job_write_to_server_write(int socket_fd, Package *p) {
 
 int job_read_from_server_read(int socket_fd, Package *p) {
 
-    char filename[280];
+    char filename[280] = {0};
     sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
     int fd = open(filename, O_RDONLY, 00666);
-
+    if (fd == -1) {
+        fprintf(stderr, "file [%s]", filename);
+        perror("open");
+        return -1;
+    }
     struct stat stat{};
     fstat(fd, &stat);               // 获取文件信息
     off_t file_size = stat.st_size;
@@ -159,10 +163,19 @@ int job_read_from_server_read(int socket_fd, Package *p) {
 }
 
 int job_read_from_server_mmap(int socket_fd, Package *p) {
-    char filename[280];
+    // 收到 BIG_DOWNLOAD 请求
+    // 根据请求头里的文件名和磁盘号，发送文件给客户端
+
+    char filename[280] = {0};
     sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
     int fd = open(filename, O_RDONLY, 00666);
-
+    if (fd == -1) {
+        fprintf(stderr, "file [%s]", filename);
+        perror("open");
+        return -1;
+    } else {
+        printf("=== File %s found, prepare to send ... \n", filename);
+    }
     struct stat stat{};
     fstat(fd, &stat);               // 获取文件信息
     off_t file_size = stat.st_size;

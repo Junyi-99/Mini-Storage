@@ -112,12 +112,9 @@ int main(int argc, const char *argv[]) {
                 close(events[i].data.fd);
                 continue;
             } else if ((fd == server_fd) && (ev & EPOLLIN)) {
-                printf("ACCEPT: %d\n", fd);
                 tcp_accept(epoll_fd, fd);
-
             } else if (ev & EPOLLIN) {
                 // 有 客户端 的 fd 收到 数据
-                //printf("RECEIVE: %d\n", fd);
                 worker_put(fd);
             } else {
 
