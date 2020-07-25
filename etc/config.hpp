@@ -48,7 +48,7 @@ struct Package {
       : msg_type(tp), block_len(blen), disk_no(dno) {
     // bzero((void *)file_name, sizeof(file_name));
     memset(file_name, 0, sizeof(file_name));
-    strcpy(file_name, fname);
+    if(fname) strcpy(file_name, fname);
   }
 };
 #pragma pack(pop)

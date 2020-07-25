@@ -20,11 +20,7 @@ unsigned int my_hash(char *str) {
 
 Package *
 set_package(MSG_TYPE msg_type, char filename[256], size_t block_len, unsigned int disk_no) {
-    Package *package = new Package;
-    package->msg_type = msg_type;
-    strcpy(package->file_name, filename);
-    package->block_len = block_len;
-    package->disk_no = disk_no;
+    Package *package = new Package(msg_type, block_len, disk_no, filename);
     return package;
 }
 
