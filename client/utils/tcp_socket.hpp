@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 inline bool CHECK_RET(int32_t res, const char *errMsg) {
-    if (!(res < 0))
+    if (res >= 0)
         return true;
     perror(errMsg);
     return false;
@@ -58,6 +58,7 @@ public:
         int32_t res = listen(_fd, backlog);
         return CHECK_RET(res, "listen error!");
     }
+
     bool Accept(TcpSocket &peer, std::string *ip = nullptr,
                 uint16_t *port = nullptr) {
         sockaddr_in addr;
@@ -76,24 +77,23 @@ public:
     }
 
     bool Send(const void *buf, const ssize_t size) {
-        ssize_t send_size = 0;
-        while (send_size < size) {
-            ssize_t res = send(_fd, buf, size, 0);
-            if (CHECK_RET(res, "send error!!"))
+        size_t bytes_need_to_send = size;
+        while (bytes_need_to_send > 0) {
+            ssize_t res =  send(_fd, buf, bytes_need_to_send, 0);
+            if (!CHECK_RET(res, "sendfile error!!"))
                 return false;
-            send_size += res;
+            bytes_need_to_send -= res;
         }
         return true;
     }
 
     bool SendFile(const int32_t file_fd, off_t *offset, const ssize_t size) {
-        ssize_t send_size = 0;
-        *offset = 0;
-        while (send_size < size) {
-            ssize_t res = sendfile(_fd, file_fd, offset, size);
+        size_t bytes_need_to_send = size;
+        while (bytes_need_to_send > 0) {
+            ssize_t res = sendfile(_fd, file_fd, offset, bytes_need_to_send);
             if (!CHECK_RET(res, "sendfile error!!"))
                 return false;
-            send_size += res;
+            bytes_need_to_send -= res;
         }
         return true;
     }
@@ -108,10 +108,15 @@ public:
     }
 
     bool SendFile(int disk_id, const int32_t file_fd, off_t *offset, const size_t size) {
-        ssize_t res = sendfile(_fd, file_fd, offset, size);
-        std::cout << "=== THREAD " << disk_id << " FILE SENT " << res << " / " << size << std::endl;
-        //std::cout << ">>>>>>>>>>>>>>>>>>sendfile size " << res << std::endl;
-        return CHECK_RET(res, "sendfile error!");
+        size_t bytes_need_to_send = size;
+        while (bytes_need_to_send > 0) {
+            ssize_t res = sendfile(_fd, file_fd, offset, bytes_need_to_send);
+            printf("=== THREAD %d SENDING %ld / %zu===\n", disk_id, *offset, bytes_need_to_send);
+            if (!CHECK_RET(res, "sendfile error!!"))
+                return false;
+            bytes_need_to_send -= res;
+        }
+        return true;
     }
 
     ssize_t Recv(void *buf, const size_t size) {

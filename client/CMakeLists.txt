@@ -14,5 +14,9 @@ find_package(Threads)
 
 # aux_source_directory(./src SRCS_FILE)
 # add_executable(upload ${SRCS_FILE})
+
 add_executable(upload ./src/upload.cc)
+add_executable(download ./src/upload.cc)
+
 target_link_libraries(upload LIB ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(download LIB ${CMAKE_THREAD_LIBS_INIT})

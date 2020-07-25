@@ -3,24 +3,34 @@
 //
 
 #include "jobs.h"
-
+#include "file.h"
 
 struct job jobs[MAX_JOBS] = {
         ADDJOB(SMALL_UPLOAD, job_write_to_server_write),
         ADDJOB(SMALL_DOWNLOAD, job_read_from_server_read),
+        ADDJOB(BIG_META, job_write_to_server_file_meta),
         ADDJOB(BIG_UPLOAD, job_write_to_server_mmap),
         ADDJOB(BIG_DOWNLOAD, job_read_from_server_mmap),
         ADDJOB(INIT_STATUS, job_init_status),
 };
 
+
+
+
 // 让程序支持新的 job，在 jobs[MAX_JOBS] 里添加相应的函数即可！
+
+
+
+int job_write_to_server_file_meta(int socket_fd, Package *p) {
+    return file_set(p->file_name, p->block_len);
+}
 
 int job_write_to_server_mmap(int socket_fd, Package *p) {
 
     // 创建文件，truncate 到指定大小
     int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
-    char filename[32];
+    char filename[280];
     sprintf(filename, "%s.disk%d", p->file_name, p->disk_no);
 
     int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
@@ -36,6 +46,9 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
         perror("Error memory mapping the file");
         return -1;
     }
+
+    // file_set(p->file_name, p->block_len);
+    //mmap的不用 file_set 因为mmap的是大文件处理，之前BIG_META已经设置了文件信息
 
     printf("Receiving data ... \n");
 
@@ -84,7 +97,7 @@ int job_write_to_server_write(int socket_fd, Package *p) {
     // 创建文件，truncate 到指定大小
     int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
-    char filename[32];
+    char filename[280];
     sprintf(filename, "%s.disk%d", p->file_name, p->disk_no);
 
     int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
@@ -94,9 +107,11 @@ int job_write_to_server_write(int socket_fd, Package *p) {
     }
     ftruncate(wfd, p->block_len);
 
+    file_set(p->file_name, p->block_len);
+
     printf("Receiving data ... \n");
 
-    uint64_t ret = 0;
+    int ret = 0;
     uint64_t received = 0;
     double last_percent = 0.0f;
     double curr_percent = 0.0f;

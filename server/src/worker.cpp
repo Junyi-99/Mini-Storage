@@ -46,7 +46,7 @@ void *worker_work(void *ptr) {
         auto *p = (Package *) buffer;
 
         printf("==============================================\n");
-        printf("               PACKAGE RECEIVED               \n");
+        printf("          PACKAGE HEADER RECEIVED             \n");
         printf("Message Type:   %d \n", p->msg_type);
         printf("Block Length:   %lu\n", p->block_len);
         printf("Disk No:        %d \n", p->disk_no);

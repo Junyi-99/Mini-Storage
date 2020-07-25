@@ -8,16 +8,16 @@
  */
 void *thr_start(void *arg) {
     // init arg
-    ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
+    ThreadArgPtr tupPtr = *((ThreadArgPtr *) arg);
     off_t offset;
     char *file_name;
     int32_t fd, real_block_size, disk_no;
     std::tie(file_name, fd, offset, real_block_size, disk_no) = *tupPtr;
-    std::cout << "thr arg " << pthread_self() << "==>"
-                << "file_name:" << file_name << "    fd:" << fd
-                << "    offset:" << offset
-                << "    real_block_size:" << real_block_size
-                << "    idisk_no:" << disk_no << std::endl;
+//    std::cout << "thr arg " << pthread_self() << "==>"
+//              << "file_name:" << file_name << "    fd:" << fd
+//              << "    offset:" << offset
+//              << "    real_block_size:" << real_block_size
+//              << "    idisk_no:" << disk_no << std::endl;
 
     // socket init
     TcpSocket socket_fd = TcpSocket();
@@ -33,14 +33,18 @@ void *thr_start(void *arg) {
     // send head
     std::shared_ptr<Package> package(set_package(
             BIG_UPLOAD, file_name, real_block_size, disk_no));
-    socket_fd.Send((void *) &(*package), Package_len);
-    std::cout << " === THREAD " << disk_no << " SENDDATA ===" << std::endl;
+
+    if (!socket_fd.Send((void *) &(*package), Package_len))
+        std::cout << "THREAD " << disk_no << "SENDING ERROR ===" << std::endl;
+    std::cout << " === THREAD " << disk_no << " HEADER SENT ===" << std::endl;
+
     // send file block
     socket_fd.SendFile(disk_no, fd, &offset, real_block_size);
+    std::cout << " === THREAD " << disk_no << " BODY SENT ===" << std::endl;
 
     // TODO: recv到关闭信号后close?
     socket_fd.Close();
-    std::cout << "(big_file_upload)pthread exit " << pthread_self() << std::endl;
+    //std::cout << "(big_file_upload)pthread exit " << pthread_self() << std::endl;
     return nullptr;
 }
 
@@ -69,8 +73,8 @@ void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
         socket_fd.Socket();
         socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
         std::shared_ptr<Package> head_package(
-            new Package(BIG_UPLOAD, file_size, 0, file_name));
-        socket_fd.Send((void *)&(*head_package), sizeof(Package));
+                new Package(BIG_META, file_size, 0, file_name));
+        socket_fd.Send((void *) &(*head_package), sizeof(Package));
         socket_fd.Close();
 
         ThreadArgPtr arg =
@@ -84,7 +88,7 @@ void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
         // if fail: again
         if (res != 0) {
             std::cerr << "(big_file_upload)创建第i=" << i--
-                        << "个线程时失败,pthread_id=" << pthread_self() << std::endl;
+                      << "个线程时失败,pthread_id=" << pthread_self() << std::endl;
             continue;
         }
     }

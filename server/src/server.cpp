@@ -6,6 +6,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/epoll.h>
+#include <signal.h>
 
 #include "../include/ThreadPool.h"
 #include "../include/tcp.h"
@@ -14,8 +15,14 @@
 ThreadPool pool(MAX_THREADS);
 
 
-void *task(void *p) {
-    return nullptr;
+void sig_handler(int signal) {
+
+    if (signal == SIGALRM) {
+
+        std::cout << "Jobs in queue: " << worker_queue.size() << std::endl;
+
+        alarm(5);
+    }
 }
 
 /*
@@ -23,7 +30,8 @@ void *task(void *p) {
  * accept 之后，开启线程处理文件 上传/下载 请求
  * */
 int main(int argc, const char *argv[]) {
-
+    signal(SIGALRM, sig_handler);
+    alarm(5);
     // result = pool.enqueue([](int answer, int c) { return answer; }, 42, 32);
     //std::cout << result.get() << std::endl;
     int colorList[] = {196, 197, 198, 199, 200, 201, 165, 129, 93, 57, 21, 27, 33, 39, 45, 51, 50, 49, 48, 47};
@@ -32,9 +40,9 @@ int main(int argc, const char *argv[]) {
     float progress = 0.0;
     while (progress < 100.0) {
 
-        printf("%3d %% [", (int)progress);
+        printf("%3d %% [", (int) progress);
 
-        for (int i = 0; i < progress; ++i) {
+        for (int i = 0; i < (int) progress; ++i) {
             printf("\x1b[48;5;%dm \x1b[0m", colorList[(int) i / 5]);
         }
         printf("]\r");
@@ -43,11 +51,9 @@ int main(int argc, const char *argv[]) {
         progress += 1; // for demonstration only
         //printf("Progress: %.2f%%  \e[?25l\n", progress);
 
-        usleep(50 * 1000);
+        usleep(10 * 1000);
     }
     printf("\n");
-
-
 
 
     int server_fd;
@@ -83,6 +89,9 @@ int main(int argc, const char *argv[]) {
         int ret = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
 
         if (ret < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
             perror("epoll wait error\n");
             break;
         }
@@ -102,6 +111,7 @@ int main(int argc, const char *argv[]) {
             } else if ((fd == server_fd) && (ev & EPOLLIN)) {
                 printf("ACCEPT: %d\n", fd);
                 tcp_accept(epoll_fd, fd);
+
             } else if (ev & EPOLLIN) {
                 // 有 客户端 的 fd 收到 数据
                 printf("RECEIVE: %d\n", fd);
