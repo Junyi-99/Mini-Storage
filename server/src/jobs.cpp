@@ -60,6 +60,7 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
 
         received += ret;
     }
+    system("sync");
     delete fileOpt; // 析构 自动落盘
 
     printf("Transfer complete!\n");
@@ -70,7 +71,7 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
 int job_write_to_server_write(int socket_fd, Package *p) {
     file_set(p->file_name, p->block_len);
     // 使用 write() 写小文件 ❌
-    // 偷懒使用 File_Opt       👌
+    // 偷懒使用 File_Opt    ✅
     return job_write_to_server_mmap(socket_fd, p);
 }
 

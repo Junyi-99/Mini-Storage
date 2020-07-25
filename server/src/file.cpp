@@ -45,13 +45,16 @@ File_Opt::File_Opt(const char *filename) {
 
 //析构时，关闭文件，解除映射，落盘
 File_Opt::~File_Opt() {
+    printf("Syncing the disk ... \n");
     if (msync(mmap_addr, file_size, MS_SYNC) < 0) {
         printf("%s write to disk failed! \n", file_name);
         perror(file_name);
     }
+
     if (munmap(mmap_addr, file_size) < 0) {
         printf("close map of %s failed! \n", file_name);
     }
+
     if (close(fd) < 0) {
         printf("close %s failed!\n", file_name);
     }
