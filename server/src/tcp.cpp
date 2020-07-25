@@ -66,8 +66,8 @@ int tcp_accept(int epoll_fd, int fd) {
 }
 
 // 用这个函数的好处就是自动帮你关闭连接
-int tcp_receive(int client_fd, void *buf, size_t n) {
-    int ret = recv(client_fd, buf, n, 0); // 取一个 header 这么大的数据
+int tcp_receive(int client_fd, void *buf, int64_t n) {
+    auto ret = recv(client_fd, buf, n, 0); // 取一个 header 这么大的数据
 
     if (ret < 0) {
         // 连接被重置
@@ -89,10 +89,10 @@ int tcp_receive(int client_fd, void *buf, size_t n) {
     return ret;
 }
 
-int tcp_send(int sock_fd, char *buffer, size_t length) {
+int tcp_send(int sock_fd, char *buffer, int64_t length) {
 
     while (length > 0) {
-        int num = send(sock_fd, buffer, length, 0);
+        auto num = send(sock_fd, buffer, length, 0);
         if (num < 0) {
             perror("send error:");
             close(sock_fd);
@@ -106,9 +106,9 @@ int tcp_send(int sock_fd, char *buffer, size_t length) {
     return 0;
 }
 
-int tcp_sendfile(int sock_fd, int file_fd, off_t *offset, size_t bytes_need_to_send) {
+int tcp_sendfile(int sock_fd, int file_fd, off64_t *offset, int64_t bytes_need_to_send) {
     while (bytes_need_to_send > 0) {
-        ssize_t res = sendfile(sock_fd, file_fd, offset, bytes_need_to_send);
+        auto res = sendfile64(sock_fd, file_fd, offset, bytes_need_to_send);
         if (res < 0) {
             perror("send file error");
             return false;

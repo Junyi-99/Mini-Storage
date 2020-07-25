@@ -8,15 +8,16 @@ File_Opt::File_Opt(const char *filename, off_t filesize) {
     std::string fatherPath = ROOT_PATH;
     std::string filePath = fatherPath + filename;// "/raid/${file_name}"
     this->file_path = filePath.c_str();
-    if ((this->fd = open(file_path, O_RDWR | O_CREAT | O_TRUNC, S_IRWXU)) < 0) {    //创建文件
-        printf("%s_info create failed! \n", filename);
-        //perror("creat file failed");
+
+    if ((this->fd = open64(file_path, O_RDWR | O_CREAT | O_TRUNC, S_IRWXU)) < 0) {    //创建文件
+        printf("%s_info", filename);
+        perror("create failed");
     }
-    truncate(file_path, file_size);
-    this->mmap_addr = mmap(NULL, file_size, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
+    ftruncate64(this->fd, file_size);
+    this->mmap_addr = mmap64(NULL, file_size, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
     if (mmap_addr == MAP_FAILED) {
         printf("mmap error: %s\n", strerror(errno));
-        //perror("mmap create failed");
+        perror("");
     }
 };
 
@@ -27,15 +28,15 @@ File_Opt::File_Opt(const char *filename) {
     std::string fatherPath = ROOT_PATH;
     std::string filePath = fatherPath + filename;// "/raid/${file_name}"
     this->file_path = filePath.c_str();
-    if ((this->fd = open(file_path, O_RDONLY)) < 0) {    //打开文件
+    if ((this->fd = open64(file_path, O_RDONLY)) < 0) {    //打开文件
         printf("%s open failed! \n", filename);
         //perror("creat file failed");
     }
-    struct stat stat;
-    fstat(fd, &stat);               // 获取文件信息
+    struct stat64 stat;
+    fstat64(fd, &stat);               // 获取文件信息
     file_size = stat.st_size;
 
-    this->mmap_addr = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    this->mmap_addr = mmap64(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
     if (mmap_addr == MAP_FAILED) {
         printf("mmap error: %s\n", strerror(errno));
         //perror("mmap create failed");
@@ -90,7 +91,7 @@ char *File_Opt::read_part(off_t off_set, off_t NumOfChar) {
 }
 
 //从小文件里面读取total文件信息
-int File_Opt::get_total_file_size() {
+int64_t File_Opt::get_total_file_size() {
     if (this->total_file_size < 0) {
         this->total_file_size = getTotalSize(this->file_name);
     }
@@ -106,18 +107,18 @@ return error:
     -4：文件关闭失败
     >0: 成功
 */
-off_t getTotalSize(const char *filename) {
+off64_t getTotalSize(const char *filename) {
     std::string fatherPath = ROOT_PATH;
     std::string fileinfoPath = fatherPath + filename + "_info"; // "/raid/${file_name}_info"
     int info_fd;
-    if ((info_fd = open(fileinfoPath.c_str(), O_RDONLY)) < 0) {    //创建信息文件
+    if ((info_fd = open64(fileinfoPath.c_str(), O_RDONLY)) < 0) {    //创建信息文件
         printf("%s_info open failed! \n", filename);
         return -1;
     }
-    struct stat stat;
-    fstat(info_fd, &stat);               // 获取文件信息
-    off_t file_size = stat.st_size;
-    void *info_ptr = mmap(NULL, file_size, PROT_READ, MAP_SHARED, info_fd, 0);
+    struct stat64 stat{};
+    fstat64(info_fd, &stat);               // 获取文件信息
+    off64_t file_size = stat.st_size;
+    void *info_ptr = mmap64(NULL, file_size, PROT_READ, MAP_SHARED, info_fd, 0);
     if (info_ptr == MAP_FAILED) {
         printf("mmap error: %s\n", strerror(errno));
         return -2;
@@ -157,12 +158,12 @@ int file_set(const char *filename, uint32_t filesize) {
     int str_len = strlen(filesize_str);
 
     int info_fd;
-    if ((info_fd = open(fileinfoPath.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRWXU)) < 0) {    //创建信息文件
+    if ((info_fd = open64(fileinfoPath.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRWXU)) < 0) {    //创建信息文件
         printf("%s_info create failed! \n", filename);
         return -1;
     }
     truncate(fileinfoPath.c_str(), str_len);
-    void *info_ptr = mmap(NULL, str_len + 1, PROT_WRITE | PROT_READ, MAP_SHARED, info_fd, 0);
+    void *info_ptr = mmap64(NULL, str_len + 1, PROT_WRITE | PROT_READ, MAP_SHARED, info_fd, 0);
     if (info_ptr == MAP_FAILED) {
         printf("mmap error: %s\n", strerror(errno));
         return -2;

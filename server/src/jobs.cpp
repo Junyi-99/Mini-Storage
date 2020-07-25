@@ -26,32 +26,15 @@ int job_get_file_size(int socket_fd, Package *p) {
     return 0;
 }
 
-
 int job_write_to_server_file_meta(int socket_fd, Package *p) {
     return file_set(p->file_name, p->block_len);
 }
 
 int job_write_to_server_mmap(int socket_fd, Package *p) {
-
-    // 创建文件，truncate 到指定大小
-    int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-
     char filename[280];
     sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
 
-    int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
-    if (wfd == -1) {
-        perror("Cannot open output file\n");
-        return -1;
-    }
-    ftruncate(wfd, p->block_len);
-
-    auto *mp = (unsigned char *) mmap(nullptr, p->block_len, PROT_READ | PROT_WRITE, MAP_SHARED, wfd, 0);
-    if (mp == MAP_FAILED) {
-        close(wfd);
-        perror("Error memory mapping the file");
-        return -1;
-    }
+    auto *fileOpt = new File_Opt(filename, p->block_len);
 
     // file_set(p->file_name, p->block_len);
     //mmap的不用 file_set 因为mmap的是大文件处理，之前BIG_META已经设置了文件信息
@@ -64,7 +47,7 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
     double curr_percent = 0.0f;
 
     while (received < p->block_len) {
-        ret = tcp_receive(socket_fd, mp + received, 81920);
+        ret = tcp_receive(socket_fd, (char *) fileOpt->mmap_addr + received, 81920);
         if (ret == -1) {
             printf("Error occurred!\n");
             break;
@@ -77,112 +60,35 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
 
         received += ret;
     }
+    delete fileOpt; // 析构 自动落盘
 
-    printf("Syncing the disk ... \n");
-    if (msync(mp, p->block_len, MS_SYNC) == -1) {
-        perror("Could not sync the file to disk");
-    }
-
-    printf("Unmapping the file ... \n");
-    if (munmap(mp, p->block_len) == -1) {
-        close(wfd);
-        perror("Error un-mmapping the file");
-        exit(EXIT_FAILURE);
-    }
-
-    close(wfd);
     printf("Transfer complete!\n");
     return 0;
 }
 
+
 int job_write_to_server_write(int socket_fd, Package *p) {
-
-    // 创建文件，truncate 到指定大小
-    int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-
-    char filename[280];
-    sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
-
-    int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
-    if (wfd == -1) {
-        perror("Cannot open output file\n");
-        return -1;
-    }
-    ftruncate(wfd, p->block_len);
-
     file_set(p->file_name, p->block_len);
-
-    printf("Receiving data ... \n");
-
-    int ret = 0;
-    uint64_t received = 0;
-    double last_percent = 0.0f;
-    double curr_percent = 0.0f;
-
-    auto *buff = new unsigned char[81920];
-    while (received < p->block_len) {
-        ret = tcp_receive(socket_fd, buff, sizeof(buff));
-        if (ret == -1) {
-            printf("Error occurred! \n");
-            break;
-        }
-
-        curr_percent = (double) received * 100 / p->block_len;
-        if (curr_percent - last_percent > 5) {
-            printf("Progress: %.2f%%\n", last_percent = curr_percent);
-        }
-
-        write(wfd, buff, ret);
-        received += ret;
-    }
-
-    close(wfd);
-    printf("Transfer complete!\n");
-    return 0;
+    // 使用 write() 写小文件 ❌
+    // 偷懒使用 File_Opt       👌
+    return job_write_to_server_mmap(socket_fd, p);
 }
 
 int job_read_from_server_read(int socket_fd, Package *p) {
-
-    char filename[280] = {0};
-    sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
-    int fd = open(filename, O_RDONLY, 00666);
-    if (fd == -1) {
-        fprintf(stderr, "file [%s]", filename);
-        perror("open");
-        return -1;
-    }
-    struct stat stat{};
-    fstat(fd, &stat);               // 获取文件信息
-    off_t file_size = stat.st_size;
-
-    off_t offset = 0;
-
-    tcp_sendfile(socket_fd, fd, &offset, file_size);
-
-    return 0;
+    return job_read_from_server_mmap(socket_fd, p); // 其实都用 sendfile 发送文件到 socket
 }
 
 int job_read_from_server_mmap(int socket_fd, Package *p) {
     // 收到 BIG_DOWNLOAD 请求
     // 根据请求头里的文件名和磁盘号，发送文件给客户端
-
     char filename[280] = {0};
     sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
-    int fd = open(filename, O_RDONLY, 00666);
-    if (fd == -1) {
-        fprintf(stderr, "file [%s]", filename);
-        perror("open");
-        return -1;
-    } else {
-        printf("=== File %s found, prepare to send ... \n", filename);
-    }
-    struct stat stat{};
-    fstat(fd, &stat);               // 获取文件信息
-    off_t file_size = stat.st_size;
+    auto *fileOpt = new File_Opt(filename);
 
-    off_t offset = 0;
 
-    tcp_sendfile(socket_fd, fd, &offset, file_size);
+    off64_t offset = 0;
+    tcp_sendfile(socket_fd, fileOpt->fd, &offset, fileOpt->file_size);
+    delete fileOpt;
 
     return 0;
 }

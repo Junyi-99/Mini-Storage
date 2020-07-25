@@ -44,16 +44,17 @@ public:
     void write_by_offset(const char *content, off_t off_set);   //写入文件，需要提供：内容 及 偏移量
     char *read_all();   //读取全部内容
     char *read_part(off_t off_set, off_t NumOfChar);    //读取部分内容，需要提供：偏移量 及 字符个数
-    int get_total_file_size();
+    int64_t get_total_file_size();
+
+    void *mmap_addr;
+    int fd;
+    off64_t file_size;
 
 private:
-    int fd;
-    void *mmap_addr;
     char *operation_postion;
     const char *file_name;
     const char *file_path;
-    off_t file_size;
-    off_t total_file_size;
+    off64_t total_file_size;
 
     char *mmap_write_byte_part(char *addr, const char *content);
 };
