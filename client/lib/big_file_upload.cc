@@ -8,7 +8,7 @@
 void *thr_start(void *arg) {
   // init arg
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
-  off64_t offset;
+  off_t offset;
   char *file_name;
   int32_t fd, disk_no;
   int64_t real_block_size;
@@ -72,7 +72,7 @@ void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
   for (uint32_t i = 0; i < thr_num; ++i) {
     // [i*block_size, (i+1)*block_size) => 左闭右开
     // [(thr_num-2)*block_size, (thr_num-1)*block_size+last_block) => 最后一块
-    off64_t offset = i * block_size;
+    off_t offset = i * block_size;
     uint64_t real_block_size =
         (i == thr_num - 1) ? (block_size + last_block) : block_size;
 

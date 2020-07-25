@@ -104,11 +104,10 @@ public:
     addr.sin_addr.s_addr = inet_addr(ip.c_str());
     addr.sin_port = htons(port);
     int32_t res = connect(_fd, (sockaddr *)&addr, sizeof(addr));
-    printf("connect: %d\n", res);
     return CHECK_RET(res, "connect error!");
   }
 
-  bool SendFile(int disk_id, const int32_t file_fd, off64_t *offset,
+  bool SendFile(int disk_id, const int32_t file_fd, off_t *offset,
                 const size_t size) {
     size_t bytes_need_to_send = size;
     while (bytes_need_to_send > 0) {
