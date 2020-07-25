@@ -31,7 +31,7 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
     int flag = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
     char filename[280];
-    sprintf(filename, "%s.disk%d", p->file_name, p->disk_no);
+    sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
 
     int wfd = open(filename, O_RDWR | O_CREAT | O_TRUNC, flag);
     if (wfd == -1) {

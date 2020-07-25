@@ -19,7 +19,8 @@ void worker_put(int fd) {
         __mutex.unlock();
     }
 }
-
+int headers = 0;
+int bodies = 0;
 // 循环从队列里取出任务，解析包头，判断类型，然后交给 job.handler 处理
 void *worker_work(void *ptr) {
     while (true) {
@@ -52,7 +53,8 @@ void *worker_work(void *ptr) {
         printf("Disk No:        %d \n", p->disk_no);
         printf("File Name:      %s \n", p->file_name);
         printf("==============================================\n");
-
+        headers++;
+        printf("headers: %d\n", headers);
         // 根据控制码调用相关的处理函数
         // 包括继续接收后续的包，也由 handler 进行处理
         for (auto &job : jobs) {

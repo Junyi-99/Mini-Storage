@@ -79,7 +79,7 @@ public:
     bool Send(const void *buf, const ssize_t size) {
         size_t bytes_need_to_send = size;
         while (bytes_need_to_send > 0) {
-            ssize_t res =  send(_fd, buf, bytes_need_to_send, 0);
+            ssize_t res = send(_fd, buf, bytes_need_to_send, 0);
             if (!CHECK_RET(res, "sendfile error!!"))
                 return false;
             bytes_need_to_send -= res;
@@ -104,6 +104,7 @@ public:
         addr.sin_addr.s_addr = inet_addr(ip.c_str());
         addr.sin_port = htons(port);
         int32_t res = connect(_fd, (sockaddr *) &addr, sizeof(addr));
+        printf("connect: %d\n", res);
         return CHECK_RET(res, "connect error!");
     }
 

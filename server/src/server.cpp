@@ -32,6 +32,8 @@ void sig_handler(int signal) {
 int main(int argc, const char *argv[]) {
     signal(SIGALRM, sig_handler);
     alarm(5);
+
+
     // result = pool.enqueue([](int answer, int c) { return answer; }, 42, 32);
     //std::cout << result.get() << std::endl;
     int colorList[] = {196, 197, 198, 199, 200, 201, 165, 129, 93, 57, 21, 27, 33, 39, 45, 51, 50, 49, 48, 47};
@@ -66,7 +68,7 @@ int main(int argc, const char *argv[]) {
     // 创建 worker 线程
     pthread_t threads[MAX_THREADS] = {0};
     for (auto &thread : threads) {
-        if (pthread_create(&thread, nullptr, worker_work, nullptr) < 0) {
+        if (pthread_create(&thread, nullptr, worker_work, nullptr) > 0) {
             perror("pthread_create");
         }
     }
@@ -81,7 +83,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // 注册 server_fd 到 epoll，这里不能使用 ONESHOT 否则会丢失客户端数据
-    epoll_register(EPOLLIN | EPOLLET, epoll_fd, server_fd);
+    epoll_register(EPOLLIN, epoll_fd, server_fd);
     while (true) {
         struct epoll_event events[MAX_EVENTS];
 
@@ -91,9 +93,10 @@ int main(int argc, const char *argv[]) {
         if (ret < 0) {
             if (errno == EINTR) {
                 continue;
+            } else {
+                perror("epoll wait error\n");
+                break;
             }
-            perror("epoll wait error\n");
-            break;
         }
 
         // 遍历获取到的 epoll 事件
@@ -114,7 +117,7 @@ int main(int argc, const char *argv[]) {
 
             } else if (ev & EPOLLIN) {
                 // 有 客户端 的 fd 收到 数据
-                printf("RECEIVE: %d\n", fd);
+                //printf("RECEIVE: %d\n", fd);
                 worker_put(fd);
             } else {
 

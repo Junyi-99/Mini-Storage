@@ -29,7 +29,8 @@ void *thr_start(void *arg) {
         socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
     else
         socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
-
+    //socket_fd.Close();
+    //return nullptr;
     // send head
     std::shared_ptr<Package> package(set_package(
             BIG_UPLOAD, file_name, real_block_size, disk_no));
@@ -59,23 +60,21 @@ void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
     // change ThreadArgPtr's scope
     std::vector<ThreadArgPtr> vec(thr_num);
 
+
+    // send head package
+    TcpSocket socket_fd = TcpSocket();
+    socket_fd.Socket();
+    socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
+    std::shared_ptr<Package> head_package(
+            new Package(BIG_META, file_size, 0, file_name));
+    socket_fd.Send((void *) &(*head_package), sizeof(Package));
+    socket_fd.Close();
+
     for (int32_t i = 0; i < thr_num; ++i) {
         // [i*block_size, (i+1)*block_size) => 左闭右开
         // [(thr_num-2)*block_size, (thr_num-1)*block_size+last_block) => 最后一块
         off_t offset = i * block_size;
-        int32_t real_block_size =
-                (i == thr_num - 1) ? (block_size + last_block) : block_size;
-        // std::cout << i << ". offset && real_block_size ==>" << offset << ":"
-        // << real_block_size << std::endl;
-
-        // send head package
-        TcpSocket socket_fd = TcpSocket();
-        socket_fd.Socket();
-        socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
-        std::shared_ptr<Package> head_package(
-                new Package(BIG_META, file_size, 0, file_name));
-        socket_fd.Send((void *) &(*head_package), sizeof(Package));
-        socket_fd.Close();
+        int32_t real_block_size = (i == thr_num - 1) ? (block_size + last_block) : block_size;
 
         ThreadArgPtr arg =
                 ThreadArgPtr(new ThreadArg(file_name, fd, offset, real_block_size, i));

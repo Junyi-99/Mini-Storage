@@ -72,6 +72,9 @@ int tcp_receive(int client_fd, void *buf, size_t n) {
     if (ret < 0) {
         // 连接被重置
         if (errno == ECONNRESET) {
+            perror("ECONNRESET");
+        } else if (errno == EAGAIN) {
+            perror("EAGAIN");
         } else {
             perror("tcp_receive error");
         }
