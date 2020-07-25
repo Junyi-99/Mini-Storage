@@ -1,5 +1,4 @@
 #include "../include/big_file.h"
-#include "../include/small_file.h"
 #include <cstring>
 #include <pthread.h>
 
@@ -30,11 +29,10 @@ void *thr_start(void *arg) {
     socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
   else
     socket_fd.Connect(SERVER_IP_ADDR_2, SERVER_PORT);
-  // socket_fd.Close();
-  // return nullptr;
+
   // send head
   std::shared_ptr<Package> package(
-      set_package(BIG_UPLOAD, file_name, real_block_size, disk_no));
+      new Package(BIG_UPLOAD, real_block_size, disk_no, file_name));
 
   if (!socket_fd.Send((void *)&(*package), Package_len))
     std::cout << "THREAD " << disk_no << "SENDING ERROR ===" << std::endl;
