@@ -9,7 +9,7 @@
 void *thr_start(void *arg) {
     // init arg
     ThreadArgPtr tupPtr = *((ThreadArgPtr *) arg);
-    off_t offset;
+    off64_t offset;
     char *file_name;
     int32_t fd, real_block_size, disk_no;
     std::tie(file_name, fd, offset, real_block_size, disk_no) = *tupPtr;
@@ -51,12 +51,12 @@ void *thr_start(void *arg) {
 
 void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
     // last_block:
-    const int32_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
+    const uint64_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
     // const int32_t thr_num = 4; // test
-    const int32_t block_size = file_size / thr_num;
-    const int32_t last_block = file_size % thr_num;
+    const uint64_t block_size = file_size / thr_num;
+    const uint64_t last_block = file_size % thr_num;
 
-    pthread_t *tid = new pthread_t[thr_num];
+    auto *tid = new pthread_t[thr_num];
     // change ThreadArgPtr's scope
     std::vector<ThreadArgPtr> vec(thr_num);
 
@@ -70,11 +70,11 @@ void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
     socket_fd.Send((void *) &(*head_package), sizeof(Package));
     socket_fd.Close();
 
-    for (int32_t i = 0; i < thr_num; ++i) {
+    for (uint32_t i = 0; i < thr_num; ++i) {
         // [i*block_size, (i+1)*block_size) => 左闭右开
         // [(thr_num-2)*block_size, (thr_num-1)*block_size+last_block) => 最后一块
-        off_t offset = i * block_size;
-        int32_t real_block_size = (i == thr_num - 1) ? (block_size + last_block) : block_size;
+        off64_t offset = i * block_size;
+        uint64_t real_block_size = (i == thr_num - 1) ? (block_size + last_block) : block_size;
 
         ThreadArgPtr arg =
                 ThreadArgPtr(new ThreadArg(file_name, fd, offset, real_block_size, i));

@@ -159,6 +159,18 @@ int job_read_from_server_read(int socket_fd, Package *p) {
 }
 
 int job_read_from_server_mmap(int socket_fd, Package *p) {
+    char filename[280];
+    sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
+    int fd = open(filename, O_RDONLY, 00666);
+
+    struct stat stat{};
+    fstat(fd, &stat);               // 获取文件信息
+    off_t file_size = stat.st_size;
+
+    off_t offset = 0;
+
+    tcp_sendfile(socket_fd, fd, &offset, file_size);
+
     return 0;
 }
 

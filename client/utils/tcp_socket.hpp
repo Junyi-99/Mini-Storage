@@ -108,10 +108,10 @@ public:
         return CHECK_RET(res, "connect error!");
     }
 
-    bool SendFile(int disk_id, const int32_t file_fd, off_t *offset, const size_t size) {
+    bool SendFile(int disk_id, const int32_t file_fd, off64_t *offset, const size_t size) {
         size_t bytes_need_to_send = size;
         while (bytes_need_to_send > 0) {
-            ssize_t res = sendfile(_fd, file_fd, offset, bytes_need_to_send);
+            ssize_t res = sendfile64(_fd, file_fd, offset, bytes_need_to_send);
             printf("=== THREAD %d SENDING %ld / %zu===\n", disk_id, *offset, bytes_need_to_send);
             if (!CHECK_RET(res, "sendfile error!!"))
                 return false;
