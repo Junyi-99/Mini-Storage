@@ -42,9 +42,9 @@ sh build.sh
 
 您可以在根目录 `/` 手动创建一个名为 `raid` 的目录，并且设置好目录权限，server 也可以正常工作。
 
-![image-20200726165739393](/Users/junyi/Library/Application Support/typora-user-images/image-20200726165739393.png)
-
-
+```bash
+mkdir /raid
+```
 
 运行 server 非常简单，因为 server 不接收任何参数：
 
