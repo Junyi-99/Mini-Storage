@@ -60,7 +60,7 @@ private:
 };
 
 //记录total文件大小
-int file_set(const char *filename, uint32_t filesize);
+int file_set(const char *filename, uint64_t filesize);
 
 //获取total文件大小
 off_t getTotalSize(const char *filename);

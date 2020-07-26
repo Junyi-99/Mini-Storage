@@ -88,7 +88,11 @@ int job_read_from_server_mmap(int socket_fd, Package *p) {
 
 
     off64_t offset = 0;
+
+    printf("SENDING FILE %d %ld %ld... \n", fileOpt->fd, offset, fileOpt->file_size);
+
     tcp_sendfile(socket_fd, fileOpt->fd, &offset, fileOpt->file_size);
+
     delete fileOpt;
 
     return 0;

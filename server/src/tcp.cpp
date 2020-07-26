@@ -190,7 +190,7 @@ int tcp_send(int sock_fd, char *buffer, int64_t length) {
 int tcp_sendfile(int sock_fd, int file_fd, off64_t *offset, int64_t bytes_need_to_send) {
     while (bytes_need_to_send > 0) {
         auto res = sendfile64(sock_fd, file_fd, offset, bytes_need_to_send);
-        if (res < 0) {
+        if (res <= 0) {
             perror("send file error");
             return false;
         }

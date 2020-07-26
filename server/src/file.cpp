@@ -152,7 +152,7 @@ return error:
     -4：文件关闭失败
     1: 成功
 */
-int file_set(const char *filename, uint32_t filesize) {
+int file_set(const char *filename, uint64_t filesize) {
     //不单独为每个文件创建文件夹，统一放在/raid下面
     //总文件的信息记录在/raid/filename_info这里
     std::string fatherPath = ROOT_PATH;
