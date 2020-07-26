@@ -54,6 +54,10 @@ mkdir /raid
 
 此时，server 将会监听来自 `6667` 端口的所有连接。
 
+<font color="red">注意，请同时在 `9.100.173.170` 和 `9.100.173.189` 两台服务器上运行 server，因为客户端会尝试向这两个服务器发送不同的文件分块，以达到 "分布式" 的效果</font>
+
+
+
 
 
 ## 运行（客户端）
@@ -66,6 +70,10 @@ mkdir /raid
 ```
 
 <font color="red">⚠️警告：如果上传的文件名与之前的重复，服务端将覆盖之前上传的文件</font>
+
+客户端默认尝试访问 `9.100.173.170` 和 `9.100.173.189` 两台机器
+
+
 
 
 
@@ -87,4 +95,19 @@ mkdir /raid
 
 ```
 ./bin/upload_20_small_file.sh
+```
+
+
+
+## 其它
+
+在 /etc/config.hpp 里，有一些关于项目的配置：
+
+```c++
+#define SERVER_IP_ADDR_1       "9.100.173.170" // 客户端要连接的第一个IP
+#define SERVER_IP_ADDR_2       "9.100.173.189" // 客户端要连接的第二个IP
+#define SERVER_PORT            6667            // 服务端监听端口
+#define SERVER_MAX_CONNECTION  500             // epoll 设置
+#define SERVER_MAX_EVENTS      500             // epoll 设置
+#define SERVER_MAX_THREADS     16              // 服务端有多少线程处理文件分块（一个分块一个线程）
 ```

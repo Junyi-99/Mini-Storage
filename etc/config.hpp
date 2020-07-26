@@ -14,20 +14,30 @@
 
 #define SMALL_FILE_SIZE_MAX 10 * 1024 * 1024
 #define ACK_SIZE 8
+#define BIG_FILE_UPLOAD_BLOCK_NUM 24
+#define BIG_FILE_DOWNLOAD_THR_NUM 24
 
 #define SERVER_DISK_COUNT 24
 #define SINGLE_SERVER_DISK 12
 
-#define SERVER_IP_ADDR_1  "9.100.173.189"
-#define SERVER_IP_ADDR_2  "9.100.173.189"
+#define SERVER_IP_ADDR_1  "9.100.173.170" // 客户端要连接的第一个IP
+#define SERVER_IP_ADDR_2  "9.100.173.189" // 客户端要连接的第二个IP
 
 //#define SERVER_IP_ADDR_1 "127.0.0.1"
 //#define SERVER_IP_ADDR_2 "127.0.0.1"
 
-#define SERVER_PORT 6667
 
-#define BIG_FILE_UPLOAD_BLOCK_NUM 24
-#define BIG_FILE_DOWNLOAD_THR_NUM 24
+// 服务端相关配置
+#define SERVER_PORT 6667           // 监听端口
+#define SERVER_MAX_CONNECTION 500  // epoll 设置
+#define SERVER_MAX_EVENTS     500  // epoll 设置
+#define SERVER_MAX_THREADS    16   // 服务端有多少线程处理文件分块（一个分块一个线程）
+
+
+
+
+
+// 下方为公共部分
 
 enum MSG_TYPE : int8_t {
     INIT_STATUS = 0,

@@ -12,7 +12,7 @@
 #include "../include/tcp.h"
 #include "../include/worker.h"
 
-ThreadPool pool(MAX_THREADS);
+ThreadPool pool(SERVER_MAX_THREADS);
 
 
 void sig_handler(int signal) {
@@ -58,14 +58,14 @@ int main(int argc, const char *argv[]) {
 
 
     int server_fd;
-    if ((server_fd = tcp_init(SERVER_PORT, MAX_CONNECTION)) < 0) {
+    if ((server_fd = tcp_init(SERVER_PORT, SERVER_MAX_CONNECTION)) < 0) {
         return 1;
     }
 
     printf("Server Running on 0.0.0.0:%d\n", SERVER_PORT);
 
     // 创建 worker 线程
-    pthread_t threads[MAX_THREADS] = {0};
+    pthread_t threads[SERVER_MAX_THREADS] = {0};
     for (auto &thread : threads) {
         if (pthread_create(&thread, nullptr, worker_work, nullptr) > 0) {
             perror("pthread_create");
@@ -76,7 +76,7 @@ int main(int argc, const char *argv[]) {
 
     // 创建一个 epoll
     int epoll_fd;
-    if ((epoll_fd = epoll_create(MAX_EVENTS)) < 0) {
+    if ((epoll_fd = epoll_create(SERVER_MAX_EVENTS)) < 0) {
         perror("epoll create failed\n");
         return 1;
     }
@@ -84,10 +84,10 @@ int main(int argc, const char *argv[]) {
     // 注册 server_fd 到 epoll，这里不能使用 ONESHOT 否则会丢失客户端数据
     epoll_register(EPOLLIN, epoll_fd, server_fd);
     while (true) {
-        struct epoll_event events[MAX_EVENTS];
+        struct epoll_event events[SERVER_MAX_EVENTS];
 
         // epoll_wait [错误]返回 -1 ，[超时]返回 0 ，[正常]返回获取到的事件数量
-        int ret = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+        int ret = epoll_wait(epoll_fd, events, SERVER_MAX_EVENTS, -1);
 
         if (ret < 0) {
             if (errno == EINTR) {

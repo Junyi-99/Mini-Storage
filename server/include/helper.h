@@ -11,9 +11,7 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 
-#define MAX_CONNECTION 500
-#define MAX_EVENTS     500
-#define MAX_THREADS    16
+
 
 int epoll_register(int events_, int epoll_fd_, int fd_);
 
