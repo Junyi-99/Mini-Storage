@@ -2,7 +2,6 @@
 .vscode/
 .idea/
 
-*.o
 */bld/*
 */cmake-build-debug-remote-host/*
 
@@ -11,3 +10,4 @@ test_big.file*
 filelist
 build/
 cmake-build-debug-remote-host/
+/bin/

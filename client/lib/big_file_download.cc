@@ -38,6 +38,8 @@ void *thr_start(void *arg) {
   uint64_t writed_size = 0;
   char *thr_mmap_ptr = global_mmap_start_ptr + disk_no * global_block_size;
   while (true) {
+    if (real_block_size == writed_size) // recv over
+      break;
     ssize_t recv_size = socket_fd.Recv(thr_mmap_ptr + writed_size,
                                        real_block_size - writed_size);
     if (!CHECK_RET(recv_size, "Recv error! please check big_file_downlaod!"))
@@ -53,7 +55,7 @@ void *thr_start(void *arg) {
 }
 
 void do_big_file_download(char *file_name, const uint64_t file_size) {
-  const int32_t thr_num = BIG_FILE_DOWNLOAD_THR_NUM;
+  const int32_t thr_num = BIG_FILE_MAX_THR;
   const uint64_t block_size = file_size / thr_num;
   const uint64_t last_block = file_size % thr_num;
 

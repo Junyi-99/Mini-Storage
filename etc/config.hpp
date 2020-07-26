@@ -14,17 +14,16 @@
 
 #define SMALL_FILE_SIZE_MAX 10 * 1024 * 1024
 #define ACK_SIZE 8
-#define BIG_FILE_UPLOAD_BLOCK_NUM 24
-#define BIG_FILE_DOWNLOAD_THR_NUM 24
+#define BIG_FILE_MAX_THR 24
 
 #define SERVER_DISK_COUNT 24
 #define SINGLE_SERVER_DISK 12
 
-#define SERVER_IP_ADDR_1  "9.100.173.170" // 客户端要连接的第一个IP
-#define SERVER_IP_ADDR_2  "9.100.173.189" // 客户端要连接的第二个IP
+#define server_ip_addr_1  "9.100.173.170" // 客户端要连接的第一个ip
+#define server_ip_addr_2  "9.100.173.189" // 客户端要连接的第二个ip
 
-//#define SERVER_IP_ADDR_1 "127.0.0.1"
-//#define SERVER_IP_ADDR_2 "127.0.0.1"
+// #define SERVER_IP_ADDR_1 "127.0.0.1"
+// #define SERVER_IP_ADDR_2 "127.0.0.1"
 
 
 // 服务端相关配置

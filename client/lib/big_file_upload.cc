@@ -51,7 +51,7 @@ void *thr_start(void *arg) {
 
 void do_big_file_upload(int32_t fd, char *file_name, const uint64_t file_size) {
   // last_block:
-  const uint64_t thr_num = BIG_FILE_UPLOAD_BLOCK_NUM;
+  const uint64_t thr_num = BIG_FILE_MAX_THR;
   // const int32_t thr_num = 4; // test
   const uint64_t block_size = file_size / thr_num;
   const uint64_t last_block = file_size % thr_num;
