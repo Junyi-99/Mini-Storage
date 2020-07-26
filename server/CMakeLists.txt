@@ -16,5 +16,5 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # 查找当前目录下的所有源文件
 # 并将名称保存到 SRCS 变量
 aux_source_directory(${PROJECT_SOURCE_DIR}/src SRCS)
-
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../bin)
 add_executable(server ${SRCS} src/file.cpp include/file.h) # 入口为 server.cpp

@@ -14,6 +14,7 @@ add_definitions(-static-libgcc -static-libstdc++)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++") # 测试模式为了方便调试
 include_directories(${PROJECT_SOURCE_DIR}/../etc)
 add_executable(upload ./src/upload.cc)
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../bin/)
 target_link_libraries(upload LIB ${CMAKE_THREAD_LIBS_INIT})
 
 
@@ -23,4 +24,5 @@ add_definitions(-static-libgcc -static-libstdc++)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++") # 测试模式为了方便调试
 include_directories(${PROJECT_SOURCE_DIR}/../etc)
 add_executable(download ./src/download.cc)
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../bin/)
 target_link_libraries(download LIB ${CMAKE_THREAD_LIBS_INIT})
