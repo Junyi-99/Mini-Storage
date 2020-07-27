@@ -64,8 +64,8 @@ public:
           printf("获取接收缓冲区大小错误\n");
       }
 
-      printf(" 发送缓冲区原始大小为: %d 字节\n",snd_size);
-      printf(" 接收缓冲区原始大小为: %d 字节\n",rcv_size);
+      //printf(" 发送缓冲区原始大小为: %d 字节\n",snd_size);
+      //printf(" 接收缓冲区原始大小为: %d 字节\n",rcv_size);
 
       /*
        * 设置发送缓冲区大小
@@ -109,8 +109,8 @@ public:
       /*
        * 打印结果
        */
-      printf(" 发送缓冲区大小为: %d 字节\n",snd_size);
-      printf(" 接收缓冲区大小为: %d 字节\n",rcv_size);
+      //printf(" 发送缓冲区大小为: %d 字节\n",snd_size);
+      //printf(" 接收缓冲区大小为: %d 字节\n",rcv_size);
 
 
       // TODO: setsockopt??
@@ -135,7 +135,7 @@ public:
   }
 
   // TODO: max = 10?
-  bool Listen(const int32_t backlog = 10) {
+  bool Listen(const int32_t backlog = 240) {
     int32_t res = listen(_fd, backlog);
     return CHECK_RET(res, "listen error!");
   }
