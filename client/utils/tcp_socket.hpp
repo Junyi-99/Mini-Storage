@@ -135,7 +135,7 @@ public:
   }
 
   // TODO: max = 10?
-  bool Listen(const int32_t backlog = 10) {
+  bool Listen(const int32_t backlog = 240) {
     int32_t res = listen(_fd, backlog);
     return CHECK_RET(res, "listen error!");
   }
