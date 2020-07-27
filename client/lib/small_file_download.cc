@@ -20,12 +20,10 @@ int do_small_file_download(TcpSocket socket_fd, char *file_name, u_int64_t file_
     }
 
     unsigned int disk_no = my_hash(file_name); // 上传时指定了diskno下载也需要
-    const char *ip_addr = (disk_no > SINGLE_SERVER_DISK) ?
-                          SERVER_IP_ADDR_1 : SERVER_IP_ADDR_2;
 
     printf("Request file ... \n");
     socket_fd.Socket();
-    socket_fd.Connect(ip_addr, SERVER_PORT);
+    socket_fd.Connect(SERVER_IP_ADDR_1, SERVER_PORT);
 
     Package package(SMALL_DOWNLOAD, 0, disk_no, file_name);
     socket_fd.Send(&package, sizeof(Package));
