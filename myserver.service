@@ -1,0 +1,12 @@
+[Unit]
+Description=FuckStorageServerAutoStart
+
+[Service]
+Type=simple
+ExecStart=/data/home/TGuest/server3
+Restart=always
+RestartSec=1
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target

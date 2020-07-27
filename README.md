@@ -58,8 +58,20 @@ mkdir /raid
 <font color="red">注意，请同时在 `9.100.173.170` 和 `9.100.173.189` 两台服务器上运行 server，因为客户端会尝试向这两个服务器发送不同的文件分块，以达到 "分布式" 的效果</font>
 
 
+## 自启动服务 （服务端）
+
+请把 server 放到 `/data/home/TGuest/` 里，然后执行以下命令（需要 root 权限）：
 
 
+`cp myserver.service /etc/systemd/system/myserver.service`
+
+`systemctl enable myserver`
+
+`systemctl start myserver` # 启动服务
+
+`systemctl stop myserver` # 停止服务
+
+当然，你也可以不把 server 放到 /data/home/TGuest 里，你可以放在任意地方，只不过你需要修改 myserver.service 里的路径！
 
 ## 运行（客户端）
 
