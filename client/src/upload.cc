@@ -4,15 +4,20 @@
 #include <iostream>
 
 int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+        return 0;
+    }
+
     char *filename = split_filename(argv[1]);
-    int fd = open(filename, O_RDONLY);
+    int fd = open(argv[1], O_RDONLY);
     if (fd == -1) {
         perror("open");
         exit(1);
     }
 
-    struct stat file_state;
-    fstat(fd, &file_state);
+    struct stat64 file_state;
+    fstat64(fd, &file_state);
 
     uint64_t file_size = file_state.st_size;
     std::cout << "file_size: " << file_size << std::endl;

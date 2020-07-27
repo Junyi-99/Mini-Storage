@@ -4,8 +4,8 @@
 #include "../utils/tcp_socket.hpp"
 
 int main(int argc, char *argv[]) {
-    if (argc == 1) {
-        std::cout << "error   =>>   文件名??" << std::endl;
+    if (argc !=2 ) {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return 0;
     }
     // request file_size(uint64_t)
@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
     int64_t file_size;
     socket_fd.Recv(&file_size, sizeof(file_size));
     socket_fd.Close();
+    std::cout << "file_size: " << file_size << std::endl;
 
     if (file_size < 0) {
         printf("file %s does not exist!\n", file_name);
