@@ -13,16 +13,10 @@ void *thr_start(void *arg) {
   int32_t fd, disk_no;
   int64_t real_block_size;
   std::tie(file_name, fd, offset, real_block_size, disk_no) = *tupPtr;
-  //    std::cout << "thr arg " << pthread_self() << "==>"
-  //              << "file_name:" << file_name << "    fd:" << fd
-  //              << "    offset:" << offset
-  //              << "    real_block_size:" << real_block_size
-  //              << "    idisk_no:" << disk_no << std::endl;
 
   // socket init
   TcpSocket socket_fd = TcpSocket();
   socket_fd.Socket();
-  // socket_fd.Connect("9.134.13.102", 6666); // test
 
   // dispatch
   if (disk_no < SERVER_DISK_COUNT / 2)
@@ -42,10 +36,15 @@ void *thr_start(void *arg) {
   socket_fd.SendFile(disk_no, fd, &offset, real_block_size);
   std::cout << " === THREAD " << disk_no << " BODY SENT ===" << std::endl;
 
-  // TODO: recv到关闭信号后close?
+  // wait server close
+  char readBuffer[ACK_SIZE];
+  ssize_t read_size = socket_fd.Recv(readBuffer, ACK_SIZE);
+  if (read_size == 0) {
+    std::cout << "Transfer complete!\n";
+  } else {
+    std::cout << "UNKNOWN MESSAGE FROM SERVER! Length: " << read_size << "\n";
+  }
   socket_fd.Close();
-  // std::cout << "(big_file_upload)pthread exit " << pthread_self() <<
-  // std::endl;
   return nullptr;
 }
 
