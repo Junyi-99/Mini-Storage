@@ -45,7 +45,7 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
     uint64_t received = 0;
     double last_percent = 0.0f;
     double curr_percent = 0.0f;
-
+    bool synced = false;
     while (received < p->block_len) {
         ret = tcp_receive(socket_fd, (char *) fileOpt->mmap_addr + received, 81920);
         if (ret == -1) {
@@ -54,6 +54,10 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
         }
 
         curr_percent = (double) received * 100 / p->block_len;
+        if (curr_percent > 50 && !synced) { // 传输一半的时候sync一下
+            system("sync &");
+            synced = true;
+        }
         if (curr_percent - last_percent > 5) {
             printf("Progress: %.2f%%\n", last_percent = curr_percent);
         }
