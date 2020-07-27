@@ -27,9 +27,7 @@ void do_small_file_upload(int fd, char *file_name, size_t file_size) {
     // printf("send file: %s\n", file_name);
 
     /* Connect to server(single connection) */
-    const char *ip_addr = (disk_no > SINGLE_SERVER_DISK) ?
-                          SERVER_IP_ADDR_1 : SERVER_IP_ADDR_2;
-    int connfd = tcp_connect(ip_addr);
+    int connfd = tcp_connect(SERVER_IP_ADDR_1);
 
     /* Send head */
     Package *package = set_package(SMALL_UPLOAD, file_name, file_size, disk_no);
