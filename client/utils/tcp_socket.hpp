@@ -47,8 +47,8 @@ public:
   }
 
   bool Close() {
-    if (_fd >= 0)
-      return true;
+    if (_fd < 0)
+      return false;
     int32_t res = close(_fd);
     _fd = -1;
     return CHECK_RET(res, "close error!!");
@@ -132,13 +132,10 @@ public:
 
   ssize_t Recv(void *buf, const size_t size) {
     ssize_t len = recv(_fd, buf, size, 0);
-    if (len < 0) {
-      perror("recv error!");
-      exit(1);
-    }
-    if (len == 0) {
-      std::cout << "recv return 0!" << std::endl;
-    }
+    if (len < 0)
+      std::cerr << "recv error!\n";
+    if (len == 0)
+      std::cerr << "recv return 0!\n";
     return len;
   }
 
