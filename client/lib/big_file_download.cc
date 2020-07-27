@@ -36,12 +36,12 @@ void *thr_start(void *arg) {
 
   // recv block data
   uint64_t writed_size = 0;
+  const uint32_t MAX_RECV_SIZE = 81920;
   char *thr_mmap_ptr = global_mmap_start_ptr + disk_no * global_block_size;
   while (true) {
     if (real_block_size == writed_size) // recv over
       break;
-    ssize_t recv_size = socket_fd.Recv(thr_mmap_ptr + writed_size,
-                                       real_block_size - writed_size);
+    ssize_t recv_size = socket_fd.Recv(thr_mmap_ptr + writed_size, MAX_RECV_SIZE);
     if (!CHECK_RET(recv_size, "Recv error! please check big_file_downlaod!"))
       break;
     if (recv_size == 0)
