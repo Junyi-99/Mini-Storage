@@ -14,25 +14,11 @@
 
 ThreadPool pool(SERVER_MAX_THREADS);
 
-
-void sig_handler(int signal) {
-
-    if (signal == SIGALRM) {
-
-        std::cout << "Jobs in queue: " << worker_queue.size() << std::endl;
-
-        alarm(5);
-    }
-}
-
 /*
  * 主线程 epoll 处理用户连接
  * accept 之后，开启线程处理文件 上传/下载 请求
  * */
 int main(int argc, const char *argv[]) {
-    signal(SIGALRM, sig_handler);
-    alarm(5);
-
     // result = pool.enqueue([](int answer, int c) { return answer; }, 42, 32);
     //std::cout << result.get() << std::endl;
     int colorList[] = {196, 197, 198, 199, 200, 201, 165, 129, 93, 57, 21, 27, 33, 39, 45, 51, 50, 49, 48, 47};
