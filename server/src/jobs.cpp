@@ -66,7 +66,7 @@ int job_write_to_server_mmap(int socket_fd, Package *p) {
     }
     system("sync");
     delete fileOpt; // 析构 自动落盘
-
+    close(socket_fd);  // 虽然外面会自动帮忙 close，但是我依然坚持在内close的写法
     printf("Transfer complete!\n");
     return 0;
 }
@@ -86,18 +86,15 @@ int job_read_from_server_read(int socket_fd, Package *p) {
 int job_read_from_server_mmap(int socket_fd, Package *p) {
     // 收到 BIG_DOWNLOAD 请求
     // 根据请求头里的文件名和磁盘号，发送文件给客户端
+    off64_t offset = 0;
     char filename[280] = {0};
     sprintf(filename, "disk%03d.%s", p->disk_no, p->file_name);
+
     auto *fileOpt = new File_Opt(filename);
-
-
-    off64_t offset = 0;
-
     printf("SENDING FILE %d %ld %ld... \n", fileOpt->fd, offset, fileOpt->file_size);
-
     tcp_sendfile(socket_fd, fileOpt->fd, &offset, fileOpt->file_size);
-
     delete fileOpt;
+    close(socket_fd); // 虽然外面会自动帮忙 close，但是我依然坚持在内close的写法
 
     return 0;
 }
