@@ -4,7 +4,7 @@
 #include "../utils/tcp_socket.hpp"
 
 int main(int argc, char *argv[]) {
-    if (argc !=2 ) {
+    if (argc != 2) {
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return 0;
     }
@@ -35,6 +35,6 @@ int main(int argc, char *argv[]) {
         printf("The file %s is small file\n", file_name);
         do_small_file_download(socket_fd, file_name, file_size);
     }
-
+    system("sync");
     return 0;
 }

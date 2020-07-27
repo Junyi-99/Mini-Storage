@@ -30,7 +30,7 @@
 #define SERVER_PORT 6667           // 监听端口
 #define SERVER_MAX_CONNECTION 500  // epoll 设置
 #define SERVER_MAX_EVENTS     500  // epoll 设置
-#define SERVER_MAX_THREADS    16   // 服务端有多少线程处理文件分块（一个分块一个线程）
+#define SERVER_MAX_THREADS    24   // 服务端有多少线程处理文件分块（一个分块一个线程）
 
 
 

@@ -12,6 +12,7 @@
 
 `CMake >= 2.8.8` 
 
+`yum install glibc-static libstdc++-static`
 
 
 进入项目根目录，执行 `build.sh` 即可构建整个项目 

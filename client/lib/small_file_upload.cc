@@ -77,5 +77,5 @@ void do_small_file_upload(int fd, char *file_name, size_t file_size) {
 
     close(connfd);
     close(fd);
-    exit(0);
+    return 0;
 }
