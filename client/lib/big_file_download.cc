@@ -15,7 +15,7 @@ uint64_t global_block_size = 0;
 void *thr_start(void *arg) {
   // arg init
   ThreadArgPtr tupPtr = *((ThreadArgPtr *)arg);
-  off_t offset;
+  off64_t offset;
   char *file_name;
   int32_t __fd, disk_no;
   uint64_t real_block_size;
@@ -76,7 +76,7 @@ void do_big_file_download(char *file_name, const uint64_t file_size) {
   std::vector<ThreadArgPtr> vec(thr_num);
 
   for (int32_t i = 0; i < thr_num; ++i) {
-    off_t offset = i * block_size;
+    off64_t offset = i * block_size;
     uint64_t real_block_size =
         (i == thr_num - 1) ? (block_size + last_block) : block_size;
     ThreadArgPtr arg =
