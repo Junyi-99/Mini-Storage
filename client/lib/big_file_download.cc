@@ -41,7 +41,8 @@ void *thr_start(void *arg) {
   while (true) {
     if (real_block_size == writed_size) // recv over
       break;
-    ssize_t recv_size = socket_fd.Recv(thr_mmap_ptr + writed_size, MAX_RECV_SIZE);
+    ssize_t recv_size =
+        socket_fd.Recv(thr_mmap_ptr + writed_size, MAX_RECV_SIZE);
     if (!CHECK_RET(recv_size, "Recv error! please check big_file_downlaod!"))
       break;
     if (recv_size == 0)
@@ -96,6 +97,8 @@ void do_big_file_download(char *file_name, const uint64_t file_size) {
   for (int32_t i = 0; i < thr_num; ++i) {
     pthread_join(tid[i], nullptr);
   }
-  munmap(mmap_ptr, upper(file_size, sysconf(_SC_PAGESIZE)));
+  if (munmap(mmap_ptr, upper(file_size, sysconf(_SC_PAGESIZE))) == -1) {
+    std::cerr << "munmap error!\n";
+  }
   close(fd);
 }
